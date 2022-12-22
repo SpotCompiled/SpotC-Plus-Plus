@@ -1,4 +1,4 @@
-# SpotC-Plus-Plus
+# SpotC++
 This is my repo for compiled Spotilife + Sposify IPAs. Spotilife is a Spotify IOS app tweak that removes ads, removes limited skips, and almost every other premium feature. The only main premium feature that does not work is offline downloads, as this is done server-side. Sposify is a Spotify IOS app tweak that adds various enhancements to the Spotify IOS application.
 
 ## Adding to AltStore/SideStore<br/>
