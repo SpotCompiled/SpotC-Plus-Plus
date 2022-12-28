@@ -14,7 +14,7 @@ Version Format is *SpotC++ Version*\_*Spotify Version*<br/>
 Ex. *v1.3.6*\_*v8.7.78*<br/>
 
 ## Credits:<br/>
-[IOS God's Dycrypted App Store](https://armconverter.com/decryptedappstore/us/spotify) and [AppDB](https://appdb.to/app/ios/324684580)- Dycrypted Vanilla Spotify IPA<br/>
+[IOS God's Dycrypted App Store](https://armconverter.com/decryptedappstore/us/spotify) and [AppDB](https://appdb.to/app/ios/324684580)- *Dycrypted Vanilla Spotify IPA*<br/>
 [julioverne-  Spotilife](https://julio.hackyouriphone.org/) *For Spotilife tweaked .deb*<br/>
 [aesthyrica- Sposify](https://repo.dynastic.co/package/com.spos) *For Sposify tweaked  .deb*<br/>
 [Am1nCmd- Spotify++](https://appdb.to/app/cydia/1900000540) *For ScreenShots*<br/>
