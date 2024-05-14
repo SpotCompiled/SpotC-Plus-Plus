@@ -23,7 +23,7 @@ You can add my repo to AltStore *Beta* or SideStore for automatic updates and co
 3. Now any "SpotC" Apps will show up in AltStore/SideStore under the "Browse" tab where you can install and update my apps easily from within AltStore/SideStore.<br/>
 
 ## How do I add my "Musixmatch token"?<br/>
-In version 2.1.0 the option to use Musixmatch as a lyric provider was added, you must add your user token so that the app may access the Musixmatch API. Instructions for doing so are below.
+In version 3.0.0 the option to use Musixmatch as a lyric provider was added, you must add your user token so that the app may access the Musixmatch API. Instructions for doing so are below.
 <details>
 <summary>Intructions</summary><be>
 1. Download the Musixmatch Lyrics Finder app from the app store.<br/>
