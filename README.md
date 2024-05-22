@@ -30,10 +30,7 @@ In version 3.0.0 the option to use Musixmatch as a lyric provider was added, you
 2. Open the Musixmatch app.<br/>
 3. Login/Create an account.<br/>
 4. Go to settings (Top right corner) > Scroll all the way down > click "Get help" > click "Copy debug info"<br/>
-5. Paste this somewhere so you can view it in its entirety.<br/>
-6. Locate the part that says "[UserToken]" with lot's of characters after it.<br/>
-7. Copy that string of characters.<br/>
-8. Paste it into SpotveeC, when it asks you for your user token.<br/>
+5. Paste this into SpotveeC, when it asks you for your user token.<br/>
 </details>
 
 ## How it's Made<br/>
