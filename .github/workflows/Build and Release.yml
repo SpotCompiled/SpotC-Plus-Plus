@@ -63,8 +63,13 @@ jobs:
         run: |
           if [ -n "${{ secrets.VIRUSTOTALKEY }}" ]; then
             RESPONSE=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' --header "x-apikey: ${{ secrets.VIRUSTOTALKEY }}" --form "file=@Build Components/Spotify.ipa")
-            VTVANILLASPOTIFY=$(echo $RESPONSE | jq -r '.data.id')
-            echo "VTVANILLASPOTIFY=$VTVANILLASPOTIFY" >> $GITHUB_ENV
+            VTVANILLASPOTIFY=$(echo $RESPONSE | jq -r '.data.id // empty')
+            if [ -n "$VTVANILLASPOTIFY" ]; then
+              echo "VTVANILLASPOTIFY=$VTVANILLASPOTIFY" >> $GITHUB_ENV
+            else
+              echo "Failed to get VirusTotal analysis ID for Spotify.ipa"
+              exit 1
+            fi
           fi
 
       - name: Download and Scan EeveeSpotify
@@ -75,8 +80,13 @@ jobs:
           echo "eevee-arm=Build Components/Eevee-arm" >> $GITHUB_ENV
           if [ -n "${{ secrets.VIRUSTOTALKEY }}" ]; then
             RESPONSE=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' --header "x-apikey: ${{ secrets.VIRUSTOTALKEY }}" --form "file=@Build Components/Eevee-arm")
-            VTEEVEE=$(echo $RESPONSE | jq -r '.data.id')
-            echo "VTEEVEE=$VTEEVEE" >> $GITHUB_ENV
+            VTEEVEE=$(echo $RESPONSE | jq -r '.data.id // empty')
+            if [ -n "$VTEEVEE" ]; then
+              echo "VTEEVEE=$VTEEVEE" >> $GITHUB_ENV
+            else
+              echo "Failed to get VirusTotal analysis ID for EeveeSpotify"
+              exit 1
+            fi
           fi
         env:
           VIRUSTOTALKEY: ${{ secrets.VIRUSTOTALKEY }}
@@ -92,8 +102,13 @@ jobs:
           echo "SWIFTPROTOBUFVERSION=$SWIFTPROTOBUFVERSION" >> $GITHUB_ENV
           if [ -n "${{ secrets.VIRUSTOTALKEY }}" ]; then
             RESPONSE=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' --header "x-apikey: ${{ secrets.VIRUSTOTALKEY }}" --form "file=@Build Components/SwiftProtobuf-arm")
-            VTSWIFTPROTOBUF=$(echo $RESPONSE | jq -r '.data.id')
-            echo "VTSWIFTPROTOBUF=$VTSWIFTPROTOBUF" >> $GITHUB_ENV
+            VTSWIFTPROTOBUF=$(echo $RESPONSE | jq -r '.data.id // empty')
+            if [ -n "$VTSWIFTPROTOBUF" ]; then
+              echo "VTSWIFTPROTOBUF=$VTSWIFTPROTOBUF" >> $GITHUB_ENV
+            else
+              echo "Failed to get VirusTotal analysis ID for SwiftProtobuf"
+              exit 1
+            fi
           fi
         env:
           VIRUSTOTALKEY: ${{ secrets.VIRUSTOTALKEY }}
@@ -108,8 +123,13 @@ jobs:
           echo "ORIONVERSION=$ORIONVERSION" >> $GITHUB_ENV
           if [ -n "${{ secrets.VIRUSTOTALKEY }}" ]; then
             RESPONSE=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' --header "x-apikey: ${{ secrets.VIRUSTOTALKEY }}" --form "file=@Build Components/orion")
-            VTORION=$(echo $RESPONSE | jq -r '.data.id')
-            echo "VTORION=$VTORION" >> $GITHUB_ENV
+            VTORION=$(echo $RESPONSE | jq -r '.data.id // empty')
+            if [ -n "$VTORION" ]; then
+              echo "VTORION=$VTORION" >> $GITHUB_ENV
+            else
+              echo "Failed to get VirusTotal analysis ID for Orion"
+              exit 1
+            fi
           fi
         env:
           VIRUSTOTALKEY: ${{ secrets.VIRUSTOTALKEY }}
@@ -124,8 +144,13 @@ jobs:
           echo "SPOSIFYVERSION=$SPOSIFYVERSION" >> $GITHUB_ENV
           if [ -n "${{ secrets.VIRUSTOTALKEY }}" ]; then
             RESPONSE=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' --header "x-apikey: ${{ secrets.VIRUSTOTALKEY }}" --form "file=@Build Components/sposify")
-            VTSPOSIFY=$(echo $RESPONSE | jq -r '.data.id')
-            echo "VTSPOSIFY=$VTSPOSIFY" >> $GITHUB_ENV
+            VTSPOSIFY=$(echo $RESPONSE | jq -r '.data.id // empty')
+            if [ -n "$VTSPOSIFY" ]; then
+              echo "VTSPOSIFY=$VTSPOSIFY" >> $GITHUB_ENV
+            else
+              echo "Failed to get VirusTotal analysis ID for Sposify"
+              exit 1
+            fi
           fi
         env:
           VIRUSTOTALKEY: ${{ secrets.VIRUSTOTALKEY }}
@@ -140,8 +165,13 @@ jobs:
           echo "SPOSIFYFIXVERSION=$SPOSIFYFIXVERSION" >> $GITHUB_ENV
           if [ -n "${{ secrets.VIRUSTOTALKEY }}" ]; then
             RESPONSE=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' --header "x-apikey: ${{ secrets.VIRUSTOTALKEY }}" --form "file=@Build Components/sposifyfix")
-            VTSPOSIFYFIX=$(echo $RESPONSE | jq -r '.data.id')
-            echo "VTSPOSIFYFIX=$VTSPOSIFYFIX" >> $GITHUB_ENV
+            VTSPOSIFYFIX=$(echo $RESPONSE | jq -r '.data.id // empty')
+            if [ -n "$VTSPOSIFYFIX" ]; then
+              echo "VTSPOSIFYFIX=$VTSPOSIFYFIX" >> $GITHUB_ENV
+            else
+              echo "Failed to get VirusTotal analysis ID for SposifyFix"
+              exit 1
+            fi
           fi
         env:
           VIRUSTOTALKEY: ${{ secrets.VIRUSTOTALKEY }}
@@ -166,8 +196,13 @@ jobs:
           cd ..
           if [ -n "${{ secrets.VIRUSTOTALKEY }}" ]; then
             RESPONSE=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' --header "x-apikey: ${{ secrets.VIRUSTOTALKEY }}" --form "file=@Build Components/OpenSpotifySafariExtension.zip")
-            VTEXT=$(echo $RESPONSE | jq -r '.data.id')
-            echo "VTEXT=$VTEXT" >> $GITHUB_ENV
+            VTEXT=$(echo $RESPONSE | jq -r '.data.id // empty')
+            if [ -n "$VTEXT" ]; then
+              echo "VTEXT=$VTEXT" >> $GITHUB_ENV
+            else
+              echo "Failed to get VirusTotal analysis ID for OpenSpotifySafariExtension.zip"
+              exit 1
+            fi
           fi
           
       - name: Duplicate and Unzip Spotify.ipa
