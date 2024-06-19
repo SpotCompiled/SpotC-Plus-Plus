@@ -54,7 +54,7 @@ jobs:
         echo "spotifypath=Build Components/Spotify.ipa" >> $GITHUB_ENV
 
     - name: Analyze Spotify IPA
-      if: ${{ secrets.VIRUSTOTALKEY != '' }}
+      if: ${{ secrets.VIRUSTOTALKEY != 'None' }}
       run: |
         VT_URL=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' \
         --header 'x-apikey: ${{ secrets.VIRUSTOTALKEY }}' \
@@ -72,7 +72,7 @@ jobs:
         echo "REALEEVEEVERSION=$TAG" >> $GITHUB_ENV
 
     - name: Analyze EeveeSpotify
-      if: ${{ secrets.VIRUSTOTALKEY != '' }}
+      if: ${{ secrets.VIRUSTOTALKEY != 'None' }}
       run: |
         VT_URL=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' \
         --header 'x-apikey: ${{ secrets.VIRUSTOTALKEY }}' \
@@ -91,7 +91,7 @@ jobs:
         echo "SWIFTPROTOBUFVERSION=$SWIFTPROTOBUFVERSION" >> $GITHUB_ENV
 
     - name: Analyze SwiftProtobuf
-      if: ${{ secrets.VIRUSTOTALKEY != '' }}
+      if: ${{ secrets.VIRUSTOTALKEY != 'None' }}
       run: |
         VT_URL=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' \
         --header 'x-apikey: ${{ secrets.VIRUSTOTALKEY }}' \
@@ -109,7 +109,7 @@ jobs:
         echo "ORIONVERSION=$ORIONVERSION" >> $GITHUB_ENV
 
     - name: Analyze Orion
-      if: ${{ secrets.VIRUSTOTALKEY != '' }}
+      if: ${{ secrets.VIRUSTOTALKEY != 'None' }}
       run: |
         VT_URL=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' \
         --header 'x-apikey: ${{ secrets.VIRUSTOTALKEY }}' \
@@ -127,7 +127,7 @@ jobs:
         echo "SPOSIFYVERSION=$SPOSIFYVERSION" >> $GITHUB_ENV
 
     - name: Analyze Sposify
-      if: ${{ secrets.VIRUSTOTALKEY != '' }}
+      if: ${{ secrets.VIRUSTOTALKEY != 'None' }}
       run: |
         VT_URL=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' \
         --header 'x-apikey: ${{ secrets.VIRUSTOTALKEY }}' \
@@ -145,7 +145,7 @@ jobs:
         echo "SPOSIFYFIXVERSION=$SPOSIFYFIXVERSION" >> $GITHUB_ENV
 
     - name: Analyze SposifyFix
-      if: ${{ secrets.VIRUSTOTALKEY != '' }}
+      if: ${{ secrets.VIRUSTOTALKEY != 'None' }}
       run: |
         VT_URL=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' \
         --header 'x-apikey: ${{ secrets.VIRUSTOTALKEY }}' \
@@ -171,7 +171,7 @@ jobs:
         zip -r "Build Components/OpenSpotifySafariExtension.zip" OpenSpotifySafariExtension
 
     - name: Analyze Extension Zip
-      if: ${{ secrets.VIRUSTOTALKEY != '' }}
+      if: ${{ secrets.VIRUSTOTALKEY != 'None' }}
       run: |
         VT_URL=$(curl -s --request POST --url 'https://www.virustotal.com/api/v3/files' \
         --header 'x-apikey: ${{ secrets.VIRUSTOTALKEY }}' \
