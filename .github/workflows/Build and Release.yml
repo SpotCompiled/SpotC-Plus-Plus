@@ -37,7 +37,7 @@ jobs:
         id: fetch-eevee-release
         run: |
           latest_tag=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest | jq -r '.tag_name')
-          realeeveeversion=${EEVEEVERSION:-$latest_tag}
+          realeeveeversion=${{ github.event.inputs.EEVEEVERSION || latest_tag }}
           echo "REALEEVEEVERSION=$realeeveeversion" >> $GITHUB_ENV
 
   download-and-analyze:
@@ -52,7 +52,7 @@ jobs:
 
       - name: Download Spotify.ipa
         run: |
-          curl -o "Build Components/Spotify.ipa" $SPOTURL
+          curl -o "Build Components/Spotify.ipa" "${{ github.event.inputs.SPOTURL }}"
           spotifypath="Build Components/Spotify.ipa"
           echo "spotifypath=$spotifypath" >> $GITHUB_ENV
 
@@ -70,7 +70,7 @@ jobs:
 
       - name: Fetch and Download Eevee-arm.deb
         run: |
-          eevee_arm_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/$REALEEVEEVERSION | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and .name | endswith("iphoneos-arm.deb")) | .browser_download_url')
+          eevee_arm_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and .name | endswith("iphoneos-arm.deb")) | .browser_download_url')
           curl -o "Build Components/Eevee-arm.deb" $eevee_arm_asset
           eevee_arm="Build Components/Eevee-arm.deb"
           echo "eevee_arm=$eevee_arm" >> $GITHUB_ENV
@@ -89,7 +89,7 @@ jobs:
 
       - name: Fetch and Download SwiftProtobuf-arm.deb
         run: |
-          swiftprotobuf_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/$REALEEVEEVERSION | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and .name | endswith("iphoneos-arm.deb")) | .browser_download_url')
+          swiftprotobuf_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and .name | endswith("iphoneos-arm.deb")) | .browser_download_url')
           curl -o "Build Components/SwiftProtobuf-arm.deb" $swiftprotobuf_asset
           swiftprotobuf="Build Components/SwiftProtobuf-arm.deb"
           SWIFTPROTOBUFVERSION=$(echo $swiftprotobuf_asset | awk -F '_' '{print $2}' | sed 's/.deb//')
@@ -241,7 +241,7 @@ jobs:
         uses: crazy-max/ghaction-virustotal@v4
         with:
           apikey: ${{ secrets.VIRUSTOTALKEY }}
-          file: "Build Components/SpotifyEXT.ipa"
+          file: ${{ env.spotifyEXTpath }}
         env:
           VIRUSTOTALKEY: ${{ secrets.VIRUSTOTALKEY }}
 
@@ -254,12 +254,12 @@ jobs:
     steps:
       - name: Determine CHANGEVERSION
         run: |
-          if [ -z "$CHANGEVERSION" ]; then
-            latest_tag=$(curl -s $SPOTC_REPO/releases/latest | jq -r '.tag_name')
+          if [ -z "${{ github.event.inputs.CHANGEVERSION }}" ]; then
+            latest_tag=$(curl -s ${{ env.SPOTC_REPO }}/releases/latest | jq -r '.tag_name')
             changeversion=$(echo $latest_tag | sed 's/^v//')
             changeversion=$(echo "$changeversion + 0.0.1" | bc)
           else
-            changeversion=$CHANGEVERSION
+            changeversion=${{ github.event.inputs.CHANGEVERSION }}
           fi
           echo "CHANGEVERSION=$changeversion" >> $GITHUB_ENV
 
@@ -295,9 +295,9 @@ jobs:
         id: generate_description
         run: |
           description="## ChangeLog\n"
-          description+="- Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to $REALEEVEEVERSION\n"
+          description+="- Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.REALEEVEEVERSION }}\n"
           # Fetching release notes from EeveeSpotify repo
-          eevee_release_notes=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/$REALEEVEEVERSION | jq -r '.body')
+          eevee_release_notes=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.body')
 
           IFS=$'\n'
           for line in $eevee_release_notes; do
@@ -308,25 +308,25 @@ jobs:
           description+="Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment.\n"
           description+="App .ipa modified and tweaks injected using Pyzule with the GitHub Action Workflow.\n"
 
-          if [ -n "$VIRUSTOTALKEY" ]; then
+          if [ -n "${{ secrets.VIRUSTOTALKEY }}" ]; then
             description+="<details>\n"
             description+="  <summary>Version Details & VirusTotal Results</summary><br>\n\n"
-            description+="  Spotify Version: v\$VANILLASPOTIFYVERSION\n"
-            description+="  [Vanilla Spotify VirusTotal](\$VTVANILLASPOTIFY)<br>\n"
-            description+="  EeveeSpotify Version: \$REALEEVEEVERSION\n"
-            description+="  [EeveeSpotify .deb VirusTotal](\$VTEEVEE)<br>\n"
-            description+="  Sposify v\$SPOSIFYVERSION\n"
-            description+="  [Sposify VirusTotal](\$VTSPOSIFY)<br>\n"
-            description+="  OpenSpotifySafariExtension Commit: \$EXTCOMMIT\n"
-            description+="  [OpenSpotifySafariExtension Repo Compressed .zip VirusTotal](\$VTEXT)<br>\n"
-            description+="  Sposify Fix v\$SPOSIFYFIXVERSION\n"
-            description+="  [Sposify Fix VirusTotal](\$VTSPOSIFYFIX)<br>\n"
-            description+="  Orion Runtime (iOS 14 - 16) v\$ORIONVERSION\n"
-            description+="  [Orion Runtime (iOS 14 - 16) .deb VirusTotal](\$VTORION)<br>\n"
-            description+="  SwiftProtobuf Framework v\$SWIFTPROTOBUFVERSION\n"
-            description+="  [SwiftProtobuf Framework .deb VirusTotal](\$VTSWIFTPROTOBUF)<br>\n"
-            description+="  SpotC++ Version: v\$CHANGEVERSION\n"
-            description+="  [SpotC++ VirusTotal](\$VTSPOTC)<br>\n\n"
+            description+="  Spotify Version: v${{ env.VANILLASPOTIFYVERSION }}\n"
+            description+="  [Vanilla Spotify VirusTotal](${{ env.VTVANILLASPOTIFY }})<br>\n"
+            description+="  EeveeSpotify Version: ${{ env.REALEEVEEVERSION }}\n"
+            description+="  [EeveeSpotify .deb VirusTotal](${{ env.VTEEVEE }})<br>\n"
+            description+="  Sposify v${{ env.SPOSIFYVERSION }}\n"
+            description+="  [Sposify VirusTotal](${{ env.VTSPOSIFY }})<br>\n"
+            description+="  OpenSpotifySafariExtension Commit: ${{ env.EXTCOMMIT }}\n"
+            description+="  [OpenSpotifySafariExtension Repo Compressed .zip VirusTotal](${{ env.VTEXT }})<br>\n"
+            description+="  Sposify Fix v${{ env.SPOSIFYFIXVERSION }}\n"
+            description+="  [Sposify Fix VirusTotal](${{ env.VTSPOSIFYFIX }})<br>\n"
+            description+="  Orion Runtime (iOS 14 - 16) v${{ env.ORIONVERSION }}\n"
+            description+="  [Orion Runtime (iOS 14 - 16) .deb VirusTotal](${{ env.VTORION }})<br>\n"
+            description+="  SwiftProtobuf Framework v${{ env.SWIFTPROTOBUFVERSION }}\n"
+            description+="  [SwiftProtobuf Framework .deb VirusTotal](${{ env.VTSWIFTPROTOBUF }})<br>\n"
+            description+="  SpotC++ Version: v${{ env.CHANGEVERSION }}\n"
+            description+="  [SpotC++ VirusTotal](${{ env.VTSPOTC }})<br>\n\n"
             description+="</details>\n"
           fi
 
@@ -343,4 +343,4 @@ jobs:
           tag_name: ${{ env.CHANGEVERSION }}
           release_name: "SpotC++ v${{ env.CHANGEVERSION }}"
           body: ${{ steps.generate_description.outputs.description }}
-          draft: false
+          draft: true
