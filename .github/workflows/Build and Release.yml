@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       SPOTURL:
-        description: 'Direct URL to Spotify .ipa (mandatory)'
+        description: 'Direct URL to Spotify .ipa'
         required: true
       CHANGEVERSION:
-        description: 'Change Version Number (Optional)'
+        description: 'SpotC++ Version Number'
         required: false
       EEVEEVERSION:
-        description: 'EeveeSpotify Version (Optional)'
+        description: 'EeveeSpotify Version'
         required: false
 
 jobs:
