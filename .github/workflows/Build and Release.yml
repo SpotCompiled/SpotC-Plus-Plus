@@ -17,9 +17,13 @@ jobs:
   setup:
     runs-on: macos-latest
     steps:
-      - name: Install Xcode and CLI tools
+      - name: Check and Install Xcode CLI tools
         run: |
-          sudo xcode-select --install
+          if ! xcode-select -p >/dev/null 2>&1; then
+            sudo xcode-select --install
+          else
+            echo "Xcode CLI tools are already installed"
+          fi
           
       - name: Install Pyzule
         run: bash -c "$(curl https://raw.githubusercontent.com/asdfzxcvbn/pyzule/main/install-pyzule.sh)"
