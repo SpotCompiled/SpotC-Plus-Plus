@@ -15,11 +15,15 @@ on:
 
 jobs:
   setup:
-    name: Setup
     runs-on: macos-latest
     steps:
-      - name: Install Xcode and CLI tools
-        uses: actions/setup-xcode@v2
+      - name: Check and Install Xcode CLI tools
+        run: |
+          if ! xcode-select -p >/dev/null 2>&1; then
+            sudo xcode-select --install
+          else
+            echo "Xcode CLI tools are already installed"
+          fi
 
   prepare:
     name: Prepare Environment
