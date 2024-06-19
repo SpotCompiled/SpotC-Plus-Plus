@@ -247,7 +247,7 @@ jobs:
         DESCRIPTION+="${RELEASE_NOTES}\n"
         DESCRIPTION+="- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }}\n"
         DESCRIPTION+="***\nVanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment.\nApp .ipa modified and tweaks injected using Pyzule with the github Action Workflow.\n"
-        if [ -n "${{ secrets.VIRUSTOTALKEY }}" ]; then
+        if ${{ secrets.VIRUSTOTALKEY != 'None' }}: then
           DESCRIPTION+="<details>\n<summary>Version Details & VirusTotal Results</summary><br>\n\nSpotify Version: v${{ env.VANILLASPOTIFYVERSION }}\n[Vanilla Spotify VirusTotal](${{ env.VTVANILLASPOTIFY }})<br>\nEeveeSpotify Version: ${{ env.REALEEVEEVERSION }}\n[EeveeSpotify .deb VirusTotal](${{ env.VTEEVEE }})<br>\nSposify v${{ env.SPOSIFYVERSION }}\n[Sposify VirusTotal](${{ env.VTSPOSIFY }})<br>\nOpenSpotifySafariExtension Commit: ${{ env.EXTCOMMIT }}\n[OpenSpotifySafariExtension Repo Compressed .zip VirusTotal](${{ env.VTEXT }})<br>\nSposify Fix v${{ env.SPOSIFYFIXVERSION }}\n[Sposify Fix VirusTotal](${{ env.VTSPOSIFYFIX }})<br>\nOrion Runtime (iOS 14 - 16) v${{ env.ORIONVERSION }}\n[Orion Runtime (iOS 14 - 16) .deb VirusTotal](${{ env.VTORION }})<br>\nSwiftProtobuf Framework v${{ env.SWIFTPROTOBUFVERSION }}\n[SwiftProtobuf Framework .deb VirusTotal](${{ env.VTSWIFTPROTOBUF }})<br>\nSpotC++ Version: v${{ env.CHANGEVERSION }}\n[SpotC++ VirusTotal]()\n\n<br>\n</details>"
         fi
         gh release create "$TAG" --draft --title "$RELEASE_NAME" --notes "$DESCRIPTION"
