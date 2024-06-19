@@ -17,240 +17,266 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Install Pyzule
-        run: bash -c "$(curl https://raw.githubusercontent.com/asdfzxcvbn/pyzule/main/install-pyzule.sh)"
+    - name: Install Pyzule
+      run: bash -c "$(curl https://raw.githubusercontent.com/asdfzxcvbn/pyzule/main/install-pyzule.sh)"
+    
+    - name: Fetch EeveeSpotify release tags
+      id: get-eevee-tag
+      run: |
+        EEVEEVERSION="${{ github.event.inputs.EEVEEVERSION }}"
+        if [ -z "$EEVEEVERSION" ]; then
+          REALEEVEEVERSION=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest | jq -r .tag_name)
+        else
+          REALEEVEEVERSION=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases | jq -r ".[] | select(.tag_name | contains(\"$EEVEEVERSION\")).tag_name")
+        fi
+        echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
 
-      - name: Fetch EeveeSpotify release tags
-        id: fetch_eevee_tags
-        run: |
-          EEVEEVERSION=${{ github.event.inputs.EEVEEVERSION }}
-          if [ -z "$EEVEEVERSION" ]; then
-            REALEEVEEVERSION=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest | jq -r .tag_name)
-          else
-            REALEEVEEVERSION=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases | jq -r --arg EEVEEVERSION "$EEVEEVERSION" '.[] | select(.tag_name | contains($EEVEEVERSION)) | .tag_name' | head -n 1)
-          fi
-          echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
+    - name: Create Build Components folder
+      run: mkdir -p "Build Components"
 
-      - name: Create Build Components folder
-        run: mkdir -p "Build Components"
+    - name: Download Spotify IPA
+      run: |
+        curl -L "${{ github.event.inputs.SPOTURL }}" -o "Build Components/Spotify.ipa"
+        echo "spotifypath=Build Components/Spotify.ipa" >> $GITHUB_ENV
+      env:
+        SPOTURL: ${{ github.event.inputs.SPOTURL }}
+      
+    - name: Upload Spotify IPA to VirusTotal
+      if: secrets.VIRUSTOTALKEY
+      uses: crazy-max/ghaction-virustotal@v4
+      id: vt-spotify
+      with:
+        file: "Build Components/Spotify.ipa"
+        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        verbose: false
+    - name: Set VirusTotal Analysis URL for Spotify IPA
+      if: secrets.VIRUSTOTALKEY
+      run: echo "VTVANILLASPOTIFY=${{ steps.vt-spotify.outputs.analysis }}" >> $GITHUB_ENV
 
-      - name: Download Spotify.ipa
-        run: |
-          curl -L ${{ github.event.inputs.SPOTURL }} -o "Build Components/Spotify.ipa"
-          echo "spotifypath=Build Components/Spotify.ipa" >> $GITHUB_ENV
-        if: ${{ secrets.VIRUSTOTALKEY }}
-      - name: Upload Spotify.ipa to VirusTotal
-        uses: crazy-max/ghaction-virustotal@v4
-        with:
-          api_key: ${{ secrets.VIRUSTOTALKEY }}
-          path: "Build Components/Spotify.ipa"
-        id: scan_spotify
-      - name: Set VirusTotal Analysis URL for Spotify.ipa
-        run: echo "VTVANILLASPOTIFY=${{ steps.scan_spotify.outputs.analysis }}" >> $GITHUB_ENV
-        if: ${{ secrets.VIRUSTOTALKEY }}
+    - name: Download EeveeSpotify .deb files
+      run: |
+        eevee_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/$REALEEVEEVERSION | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and endswith("iphoneos-arm.deb")).browser_download_url')
+        curl -L "$eevee_asset" -o "Build Components/Eevee-arm"
+        echo "eevee-arm=Build Components/Eevee-arm" >> $GITHUB_ENV
+      env:
+        REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
+    
+    - name: Upload EeveeSpotify to VirusTotal
+      if: secrets.VIRUSTOTALKEY
+      uses: crazy-max/ghaction-virustotal@v4
+      id: vt-eevee
+      with:
+        file: "Build Components/Eevee-arm"
+        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        verbose: false
+    - name: Set VirusTotal Analysis URL for EeveeSpotify
+      if: secrets.VIRUSTOTALKEY
+      run: echo "VTEEVEE=${{ steps.vt-eevee.outputs.analysis }}" >> $GITHUB_ENV
 
-      - name: Download EeveeSpotify .deb files
-        id: download_eevee
-        run: |
-          REALEEVEEVERSION=${{ env.REALEEVEEVERSION }}
-          EEVEERELEASE_URL="https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/$REALEEVEEVERSION"
-          EEVEERESPONSE=$(curl -s $EEVEERELEASE_URL)
-          EEVEEDOWNLOAD=$(echo $EEVEERESPONSE | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and endswith("iphoneos-arm.deb")) | .browser_download_url')
-          SWIFTPROTOBUF=$(echo $EEVEERESPONSE | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")) | .browser_download_url')
-          SWIFTPROTOBUFVERSION=$(echo $SWIFTPROTOBUF | sed -n 's/.*org.swift.protobuf.swiftprotobuf_\(.*\)_iphoneos-arm.deb/\1/p')
-          curl -L $EEVEEDOWNLOAD -o "Build Components/Eevee-arm"
-          curl -L $SWIFTPROTOBUF -o "Build Components/SwiftProtobuf-arm"
-          echo "eevee-arm=Build Components/Eevee-arm" >> $GITHUB_ENV
-          echo "swiftprotobuf=Build Components/SwiftProtobuf-arm" >> $GITHUB_ENV
-          echo "SWIFTPROTOBUFVERSION=$SWIFTPROTOBUFVERSION" >> $GITHUB_ENV
-      - name: Upload EeveeSpotify and SwiftProtobuf to VirusTotal
-        uses: crazy-max/ghaction-virustotal@v4
-        with:
-          api_key: ${{ secrets.VIRUSTOTALKEY }}
-          path: "Build Components/Eevee-arm,Build Components/SwiftProtobuf-arm"
-        id: scan_eevee
-      - name: Set VirusTotal Analysis URL for EeveeSpotify and SwiftProtobuf
-        run: |
-          echo "VTEEVEE=$(echo ${{ steps.scan_eevee.outputs.analysis }} | cut -d ',' -f 1)" >> $GITHUB_ENV
-          echo "VTSWIFTPROTOBUF=$(echo ${{ steps.scan_eevee.outputs.analysis }} | cut -d ',' -f 2)" >> $GITHUB_ENV
-        if: ${{ secrets.VIRUSTOTALKEY }}
+    - name: Download SwiftProtobuf .deb file
+      run: |
+        protobuf_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/$REALEEVEEVERSION | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
+        protobuf_version=$(echo "$protobuf_asset" | grep -oP '(?<=org.swift.protobuf.swiftprotobuf_).*(?=_iphoneos-arm.deb)')
+        curl -L "$protobuf_asset" -o "Build Components/SwiftProtobuf-arm"
+        echo "swiftprotobuf=Build Components/SwiftProtobuf-arm" >> $GITHUB_ENV
+        echo "SWIFTPROTOBUFVERSION=$protobuf_version" >> $GITHUB_ENV
+      env:
+        REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
+    
+    - name: Upload SwiftProtobuf to VirusTotal
+      if: secrets.VIRUSTOTALKEY
+      uses: crazy-max/ghaction-virustotal@v4
+      id: vt-swiftprotobuf
+      with:
+        file: "Build Components/SwiftProtobuf-arm"
+        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        verbose: false
+    - name: Set VirusTotal Analysis URL for SwiftProtobuf
+      if: secrets.VIRUSTOTALKEY
+      run: echo "VTSWIFTPROTOBUF=${{ steps.vt-swiftprotobuf.outputs.analysis }}" >> $GITHUB_ENV
 
-      - name: Download Orion from Chariz repo
-        run: |
-          ORIONURL=$(curl -s https://repo.chariz.com/api/v1/packages/dev.theos.orion14 | jq -r '.data.versions[0].links.deb')
-          ORIONVERSION=$(curl -s https://repo.chariz.com/api/v1/packages/dev.theos.orion14 | jq -r '.data.versions[0].version')
-          curl -L $ORIONURL -o "Build Components/orion"
-          echo "orion=Build Components/orion" >> $GITHUB_ENV
-          echo "ORIONVERSION=$ORIONVERSION" >> $GITHUB_ENV
-      - name: Upload Orion to VirusTotal
-        uses: crazy-max/ghaction-virustotal@v4
-        with:
-          api_key: ${{ secrets.VIRUSTOTALKEY }}
-          path: "Build Components/orion"
-        id: scan_orion
-      - name: Set VirusTotal Analysis URL for Orion
-        run: echo "VTORION=${{ steps.scan_orion.outputs.analysis }}" >> $GITHUB_ENV
-        if: ${{ secrets.VIRUSTOTALKEY }}
+    - name: Download Orion .deb file from Chariz repo
+      run: |
+        orion_url=$(curl -s https://repo.chariz.com/Packages | jq -r '.[] | select(.package=="dev.theos.orion14").versions[0].depiction.url')
+        orion_version=$(curl -s "$orion_url" | grep -oP '(?<=<h1 class="text-h3">Orion ).*(?=</h1>)')
+        orion_download_url=$(curl -s "$orion_url" | grep -oP '(?<=<a class="button" href=").*(?=">Download</a>)')
+        curl -L "$orion_download_url" -o "Build Components/orion"
+        echo "orion=Build Components/orion" >> $GITHUB_ENV
+        echo "ORIONVERSION=$orion_version" >> $GITHUB_ENV
+    
+    - name: Upload Orion to VirusTotal
+      if: secrets.VIRUSTOTALKEY
+      uses: crazy-max/ghaction-virustotal@v4
+      id: vt-orion
+      with:
+        file: "Build Components/orion"
+        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        verbose: false
+    - name: Set VirusTotal Analysis URL for Orion
+      if: secrets.VIRUSTOTALKEY
+      run: echo "VTORION=${{ steps.vt-orion.outputs.analysis }}" >> $GITHUB_ENV
 
-      - name: Download Sposify from Dynastic repo
-        run: |
-          SPOSIFYURL=$(curl -s https://repo.dynastic.co/api/v1/packages/com.spos | jq -r '.data.versions[0].links.deb')
-          SPOSIFYVERSION=$(curl -s https://repo.dynastic.co/api/v1/packages/com.spos | jq -r '.data.versions[0].version')
-          curl -L $SPOSIFYURL -o "Build Components/sposify"
-          echo "sposify=Build Components/sposify" >> $GITHUB_ENV
-          echo "SPOSIFYVERSION=$SPOSIFYVERSION" >> $GITHUB_ENV
-      - name: Upload Sposify to VirusTotal
-        uses: crazy-max/ghaction-virustotal@v4
-        with:
-          api_key: ${{ secrets.VIRUSTOTALKEY }}
-          path: "Build Components/sposify"
-        id: scan_sposify
-      - name: Set VirusTotal Analysis URL for Sposify
-        run: echo "VTSPOSIFY=${{ steps.scan_sposify.outputs.analysis }}" >> $GITHUB_ENV
-        if: ${{ secrets.VIRUSTOTALKEY }}
+    - name: Download Sposify .deb file from Dynastic repo
+      run: |
+        sposify_url=$(curl -s https://repo.dynastic.co/api/Packages | jq -r '.[] | select(.package=="com.spos").version')
+        sposify_version=$(echo $sposify_url | jq -r .version)
+        sposify_download_url=$(echo $sposify_url | jq -r .url)
+        curl -L "$sposify_download_url" -o "Build Components/sposify"
+        echo "sposify=Build Components/sposify" >> $GITHUB_ENV
+        echo "SPOSIFYVERSION=$sposify_version" >> $GITHUB_ENV
+    
+    - name: Upload Sposify to VirusTotal
+      if: secrets.VIRUSTOTALKEY
+      uses: crazy-max/ghaction-virustotal@v4
+      id: vt-sposify
+      with:
+        file: "Build Components/sposify"
+        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        verbose: false
+    - name: Set VirusTotal Analysis URL for Sposify
+      if: secrets.VIRUSTOTALKEY
+      run: echo "VTSPOSIFY=${{ steps.vt-sposify.outputs.analysis }}" >> $GITHUB_ENV
 
-      - name: Download SposifyFix from level3tjg repo
-        run: |
-          SPOSIFYFIXURL=$(curl -s https://level3tjg.me/repo/api/Packages/com.level3tjg.sposifyfix | jq -r '.versions[0].links.deb')
-          SPOSIFYFIXVERSION=$(curl -s https://level3tjg.me/repo/api/Packages/com.level3tjg.sposifyfix | jq -r '.versions[0].version')
-          curl -L $SPOSIFYFIXURL -o "Build Components/sposifyfix"
-          echo "sposifyfix=Build Components/sposifyfix" >> $GITHUB_ENV
-          echo "SPOSIFYFIXVERSION=$SPOSIFYFIXVERSION" >> $GITHUB_ENV
-      - name: Upload SposifyFix to VirusTotal
-        uses: crazy-max/ghaction-virustotal@v4
-        with:
-          api_key: ${{ secrets.VIRUSTOTALKEY }}
-          path: "Build Components/sposifyfix"
-        id: scan_sposifyfix
-      - name: Set VirusTotal Analysis URL for SposifyFix
-        run: echo "VTSPOSIFYFIX=${{ steps.scan_sposifyfix.outputs.analysis }}" >> $GITHUB_ENV
-        if: ${{ secrets.VIRUSTOTALKEY }}
+    - name: Download SposifyFix .deb file from Level3tjg repo
+      run: |
+        sposifyfix_url=$(curl -s https://level3tjg.me/repo/Packages | jq -r '.[] | select(.package=="com.level3tjg.sposifyfix").version')
+        sposifyfix_version=$(echo $sposifyfix_url | jq -r .version)
+        sposifyfix_download_url=$(echo $sposifyfix_url | jq -r .url)
+        curl -L "$sposifyfix_download_url" -o "Build Components/sposifyfix"
+        echo "sposifyfix=Build Components/sposifyfix" >> $GITHUB_ENV
+        echo "SPOSIFYFIXVERSION=$sposifyfix_version" >> $GITHUB_ENV
+    
+    - name: Upload SposifyFix to VirusTotal
+      if: secrets.VIRUSTOTALKEY
+      uses: crazy-max/ghaction-virustotal@v4
+      id: vt-sposifyfix
+      with:
+        file: "Build Components/sposifyfix"
+        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        verbose: false
+    - name: Set VirusTotal Analysis URL for SposifyFix
+      if: secrets.VIRUSTOTALKEY
+      run: echo "VTSPOSIFYFIX=${{ steps.vt-sposifyfix.outputs.analysis }}" >> $GITHUB_ENV
 
-      - name: Clone OpenSpotifySafariExtension
-        run: git clone https://github.com/whoeevee/OpenSpotifySafariExtension
+    - name: Clone OpenSpotifySafariExtension
+      run: git clone https://github.com/whoeevee/OpenSpotifySafariExtension
+    
+    - name: Copy OpenSpotifySafariExtension.appex to Build Components
+      run: |
+        cp OpenSpotifySafariExtension/OpenSpotifySafariExtension.appex "Build Components/"
+        echo "EXTCOMMIT=$(git -C OpenSpotifySafariExtension rev-parse --short HEAD)" >> $GITHUB_ENV
+    
+    - name: Compress OpenSpotifySafariExtension to zip
+      run: |
+        cd OpenSpotifySafariExtension
+        zip -r ../Build\ Components/OpenSpotifySafariExtension.zip ./*
+    
+    - name: Upload OpenSpotifySafariExtension to VirusTotal
+      if: secrets.VIRUSTOTALKEY
+      uses: crazy-max/ghaction-virustotal@v4
+      id: vt-openspotify
+      with:
+        file: "Build Components/OpenSpotifySafariExtension.zip"
+        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        verbose: false
+    - name: Set VirusTotal Analysis URL for OpenSpotifySafariExtension
+      if: secrets.VIRUSTOTALKEY
+      run: echo "VTEXT=${{ steps.vt-openspotify.outputs.analysis }}" >> $GITHUB_ENV
 
-      - name: Copy OpenSpotifySafariExtension.appex
-        run: |
-          cp OpenSpotifySafariExtension/OpenSpotifySafariExtension.appex "Build Components/"
-          cd OpenSpotifySafariExtension
-          EXTCOMMIT=$(git rev-parse --short HEAD)
-          echo "EXTCOMMIT=$EXTCOMMIT" >> $GITHUB_ENV
+    - name: Duplicate and unzip Spotify.ipa
+      run: |
+        cp "Build Components/Spotify.ipa" "Build Components/SpotifyAnylises.zip"
+        unzip "Build Components/SpotifyAnylises.zip" -d payload
+    
+    - name: Extract info.plist from Spotify
+      run: |
+        cp payload/Payload/Spotify.app/Info.plist "Build Components/Info.plist"
+        echo "VANILLASPOTIFYVERSION=$(defaults read "Build Components/Info.plist" CFBundleVersion)" >> $GITHUB_ENV
+    
+    - name: Modify Spotify with OpenSpotifySafariExtension.appex
+      run: |
+        cp "Build Components/OpenSpotifySafariExtension.appex" payload/Payload/Spotify.app/PlugIns/
+        cd payload
+        zip -r ../Build\ Components/SpotifyEXT.zip ./*
+        cd ../Build\ Components
+        mv SpotifyEXT.zip SpotifyEXT.ipa
+        echo "spotifyEXTpath=Build Components/SpotifyEXT.ipa" >> $GITHUB_ENV
+        rm -rf payload
+        rm SpotifyAnylises.zip
+        rm Info.plist
+    
+    - name: Set Change Version
+      id: set-change-version
+      run: |
+        CHANGEVERSION="${{ github.event.inputs.CHANGEVERSION }}"
+        if [ -z "$CHANGEVERSION" ]; then
+          latest_tag=$(curl -s https://api.github.com/repos/SpotCompiled/SpotC-Plus-Plus/releases/latest | jq -r .tag_name)
+          base_version=${latest_tag#v}
+          IFS='.' read -ra ADDR <<< "$base_version"
+          last_number=${ADDR[2]}
+          new_last_number=$((last_number + 1))
+          CHANGEVERSION="${ADDR[0]}.${ADDR[1]}.$new_last_number"
+        fi
+        echo "CHANGEVERSION=$CHANGEVERSION" >> $GITHUB_ENV
 
-      - name: Compress OpenSpotifySafariExtension
-        run: |
-          zip -r OpenSpotifySafariExtension.zip OpenSpotifySafariExtension
-          mv OpenSpotifySafariExtension.zip "Build Components/OpenSpotifySafariExtension.zip"
-      - name: Upload OpenSpotifySafariExtension.zip to VirusTotal
-        uses: crazy-max/ghaction-virustotal@v4
-        with:
-          api_key: ${{ secrets.VIRUSTOTALKEY }}
-          path: "Build Components/OpenSpotifySafariExtension.zip"
-        id: scan_extension
-      - name: Set VirusTotal Analysis URL for OpenSpotifySafariExtension
-        run: echo "VTEXT=${{ steps.scan_extension.outputs.analysis }}" >> $GITHUB_ENV
-        if: ${{ secrets.VIRUSTOTALKEY }}
+    - name: Set Components Path
+      run: echo "componentspath=Build Components" >> $GITHUB_ENV
+    
+    - name: Run Pyzule
+      run: pyzule -i ${{ env.spotifyEXTpath }} -o ${{ env.componentspath }}/SpotifyPatched.ipa -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f ${{ env.sposifyfix }} ${{ env.sposify }} ${{ env.orion }} ${{ env.swiftprotobuf }} ${{ env.eevee-arm }} -u
 
-      - name: Duplicate Spotify.ipa and unzip
-        run: |
-          cp "Build Components/Spotify.ipa" "Build Components/SpotifyAnylises.zip"
-          unzip "Build Components/SpotifyAnylises.zip" -d "Build Components/payload"
-          cp "Build Components/payload/Payload/Spotify.app/Info.plist" "Build Components/Info.plist"
-          VANILLASPOTIFYVERSION=$(defaults read "Build Components/Info.plist" CFBundleVersion)
-          echo "VANILLASPOTIFYVERSION=$VANILLASPOTIFYVERSION" >> $GITHUB_ENV
-          cp "Build Components/OpenSpotifySafariExtension.appex" "Build Components/payload/Payload/Spotify.app/PlugIns/"
-          cd "Build Components/payload"
-          zip -r "SpotifyEXT.zip" Payload
-          mv "SpotifyEXT.zip" "../SpotifyEXT.ipa"
-          echo "spotifyEXTpath=Build Components/SpotifyEXT.ipa" >> $GITHUB_ENV
+    - name: Upload SpotifyPatched.ipa to VirusTotal
+      if: secrets.VIRUSTOTALKEY
+      uses: crazy-max/ghaction-virustotal@v4
+      id: vt-spotc
+      with:
+        file: "${{ env.componentspath }}/SpotifyPatched.ipa"
+        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        verbose: false
+    - name: Set VirusTotal Analysis URL for SpotC++
+      if: secrets.VIRUSTOTALKEY
+      run: echo "VTSPOTC=${{ steps.vt-spotc.outputs.analysis }}" >> $GITHUB_ENV
 
-      - name: Remove temporary files
-        run: |
-          rm -rf "Build Components/Info.plist"
-          rm -rf "Build Components/SpotifyAnylises.zip"
-          rm -rf "Build Components/payload"
+    - name: Create GitHub Release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: "v${{ env.CHANGEVERSION }}"
+        name: "SpotC++ v${{ env.CHANGEVERSION }}"
+        draft: true
+        files: ${{ env.componentspath }}/SpotifyPatched.ipa
+        file_glob: true
+        body: |
+          ## ChangeLog
+          - Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.REALEEVEEVERSION }}
+          $(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.body' | sed 's/^/- (EeveeSpotify) /')
+          - Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }}
+          ***
+          Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment.
+          App .ipa modified and tweaks injected using Pyzule with the github Action Workflow.
 
-      - name: Set SpotC++ version if not provided
-        run: |
-          if [ -z "${{ github.event.inputs.CHANGEVERSION }}" ]; then
-            LATEST_TAG=$(curl -s https://api.github.com/repos/SpotCompiled/SpotC-Plus-Plus/tags | jq -r '.[0].name' | sed 's/v//')
-            CHANGEVERSION=$(echo $LATEST_TAG | awk -F. -v OFS=. '{$NF += 1 ; print}')
-          else
-            CHANGEVERSION=${{ github.event.inputs.CHANGEVERSION }}
-          fi
-          echo "CHANGEVERSION=$CHANGEVERSION" >> $GITHUB_ENV
+          $(if [ -n "${{ secrets.VIRUSTOTALKEY }}" ]; then
+          echo "<details>
+          <summary>Version Details & VirusTotal Results</summary><br>
 
-      - name: Set components path
-        run: echo "componentspath=Build Components" >> $GITHUB_ENV
+          Spotify Version: v${{ env.VANILLASPOTIFYVERSION }}
+          [Vanilla Spotify VirusTotal](${{ env.VTVANILLASPOTIFY }})<br>
+          EeveeSpotify Version: ${{ env.REALEEVEEVERSION }}
+          [EeveeSpotify .deb VirusTotal](${{ env.VTEEVEE }})<br>
+          Sposify v${{ env.SPOSIFYVERSION }}
+          [Sposify VirusTotal](${{ env.VTSPOSIFY }})<br>
+          OpenSpotifySafariExtension Commit: ${{ env.EXTCOMMIT }}
+          [OpenSpotifySafariExtension Repo Compressed .zip VirusTotal](${{ env.VTEXT }})<br>
+          Sposify Fix v${{ env.SPOSIFYFIXVERSION }}
+          [Sposify Fix VirusTotal](${{ env.VTSPOSIFYFIX }})<br>
+          Orion Runtime (iOS 14 - 16) v${{ env.ORIONVERSION }}
+          [Orion Runtime (iOS 14 - 16) .deb VirusTotal](${{ env.VTORION }})<br>
+          SwiftProtobuf Framework v${{ env.SWIFTPROTOBUFVERSION }}
+          [SwiftProtobuf Framework .deb VirusTotal](${{ env.VTSWIFTPROTOBUF }})<br>
+          SpotC++ Version: v${{ env.CHANGEVERSION }}
+          [SpotC++ VirusTotal](${{ env.VTSPOTC }})
 
-      - name: Patch Spotify.ipa
-        run: |
-          pyzule -i ${{ env.spotifyEXTpath }} -o ${{ env.componentspath }}/SpotifyPatched.ipa -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f ${{ env.sposifyfix }} ${{ env.sposify }} ${{ env.orion }} ${{ env.swiftprotobuf }} ${{ env.eevee-arm }} -u
-
-      - name: Upload SpotifyPatched.ipa to VirusTotal
-        uses: crazy-max/ghaction-virustotal@v4
-        with:
-          api_key: ${{ secrets.VIRUSTOTALKEY }}
-          path: "Build Components/SpotifyPatched.ipa"
-        id: scan_spotc
-      - name: Set VirusTotal Analysis URL for SpotC++
-        run: echo "VTSPOTC=${{ steps.scan_spotc.outputs.analysis }}" >> $GITHUB_ENV
-        if: ${{ secrets.VIRUSTOTALKEY }}
-
-      - name: Create draft release
-        uses: actions/create-release@v1
-        with:
-          tag_name: "v${{ env.CHANGEVERSION }}"
-          release_name: "SpotC++ v${{ env.CHANGEVERSION }}"
-          draft: true
-          prerelease: false
-          body: |
-            ## ChangeLog
-            - Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.REALEEVEEVERSION }}
-            ${{ steps.fetch_eevee_tags.outputs.REALEEVEEVERSION }}
-            - Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }}
-            ***
-            Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment.
-            App .ipa modified and tweaks injected using Pyzule with the github Action Workflow.
-
-            ${{ secrets.VIRUSTOTALKEY && '
-            <details>
-            <summary>Version Details & VirusTotal Results</summary><br>
-
-            Spotify Version: v${{ env.VANILLASPOTIFYVERSION }}
-            [Vanilla Spotify VirusTotal](${{ env.VTVANILLASPOTIFY }})<br>
-            EeveeSpotify Version: ${{ env.REALEEVEEVERSION }}
-            [EeveeSpotify .deb VirusTotal](${{ env.VTEEVEE }})<br>
-            Sposify v${{ env.SPOSIFYVERSION }}
-            [Sposify VirusTotal](${{ env.VTSPOSIFY }})<br>
-            OpenSpotifySafariExtension Commit: ${{ env.EXTCOMMIT }}
-            [OpenSpotifySafariExtension Repo Compressed .zip VirusTotal](${{ env.VTEXT }})<br>
-            Sposify Fix v${{ env.SPOSIFYFIXVERSION }}
-            [Sposify Fix VirusTotal](${{ env.VTSPOSIFYFIX }})<br>
-            Orion Runtime (iOS 14 - 16) v${{ env.ORIONVERSION }}
-            [Orion Runtime (iOS 14 - 16) .deb VirusTotal](${{ env.VTORION }})<br>
-            SwiftProtobuf Framework v${{ env.SWIFTPROTOBUFVERSION }}
-            [SwiftProtobuf Framework .deb VirusTotal](${{ env.VTSWIFTPROTOBUF }})<br>
-            SpotC++ Version: v${{ env.CHANGEVERSION }}
-            [SpotC++ VirusTotal](${{ env.VTSPOTC }})
-
-            <br>
-            </details>' || '' }}
-        env:
-          CHANGEVERSION: ${{ env.CHANGEVERSION }}
-          REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
-          VANILLASPOTIFYVERSION: ${{ env.VANILLASPOTIFYVERSION }}
-          SPOSIFYVERSION: ${{ env.SPOSIFYVERSION }}
-          SPOSIFYFIXVERSION: ${{ env.SPOSIFYFIXVERSION }}
-          ORIONVERSION: ${{ env.ORIONVERSION }}
-          SWIFTPROTOBUFVERSION: ${{ env.SWIFTPROTOBUFVERSION }}
-          EXTCOMMIT: ${{ env.EXTCOMMIT }}
-          VTVANILLASPOTIFY: ${{ env.VTVANILLASPOTIFY }}
-          VTEEVEE: ${{ env.VTEEVEE }}
-          VTSWIFTPROTOBUF: ${{ env.VTSWIFTPROTOBUF }}
-          VTORION: ${{ env.VTORION }}
-          VTSPOSIFY: ${{ env.VTSPOSIFY }}
-          VTSPOSIFYFIX: ${{ env.VTSPOSIFYFIX }}
-          VTSPOTC: ${{ env.VTSPOTC }}
+          <br>
+          </details>"; fi)
