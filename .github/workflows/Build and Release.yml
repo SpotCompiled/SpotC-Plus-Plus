@@ -106,10 +106,11 @@ jobs:
     - name: Download SwiftProtobuf .deb file
       run: |
         protobuf_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
-        protobuf_version=$(echo "$protobuf_asset" | grep -oP '(?<=org.swift.protobuf.swiftprotobuf_).*(?=_iphoneos-arm.deb)')
         curl -L "$protobuf_asset" -o "Build Components/SwiftProtobuf-arm"
         echo "swiftprotobuf=Build Components/SwiftProtobuf-arm" >> $GITHUB_ENV
-        echo "SWIFTPROTOBUFVERSION=$protobuf_version" >> $GITHUB_ENV
+        filename=$(basename "${protobuf_asset}")
+        version=$(echo "${filename}" | grep -oP '(?<=org.swift.protobuf.swiftprotobuf_)[^_]+(?=_iphoneos-arm.deb)')
+        echo "SWIFTPROTOBUFVERSION=${version}" >> $GITHUB_ENV
       env:
         REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
     
