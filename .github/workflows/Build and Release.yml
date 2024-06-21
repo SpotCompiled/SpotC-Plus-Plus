@@ -37,6 +37,9 @@ jobs:
     - name: Create Build Components folder
       run: mkdir -p "Build Components"
 
+    - name: Set VirusTotal key as env variable
+      run: echo "VIRUSTOTALKEY=${{ secrets.VIRUSTOTALKEY }}" >> $GITHUB_ENV
+
     - name: Download Spotify IPA
       run: |
         curl -L "${{ github.event.inputs.SPOTURL }}" -o "Build Components/Spotify.ipa"
@@ -45,15 +48,15 @@ jobs:
         SPOTURL: ${{ github.event.inputs.SPOTURL }}
       
     - name: Upload Spotify IPA to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-spotify
       with:
         file: "Build Components/Spotify.ipa"
-        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for Spotify IPA
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTVANILLASPOTIFY=${{ steps.vt-spotify.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Download EeveeSpotify .deb files
@@ -65,15 +68,15 @@ jobs:
         REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
     
     - name: Upload EeveeSpotify to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-eevee
       with:
         file: "Build Components/Eevee-arm"
-        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for EeveeSpotify
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTEEVEE=${{ steps.vt-eevee.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Download SwiftProtobuf .deb file
@@ -87,15 +90,15 @@ jobs:
         REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
     
     - name: Upload SwiftProtobuf to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-swiftprotobuf
       with:
         file: "Build Components/SwiftProtobuf-arm"
-        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for SwiftProtobuf
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTSWIFTPROTOBUF=${{ steps.vt-swiftprotobuf.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Download Orion .deb file from Chariz repo
@@ -108,15 +111,15 @@ jobs:
         echo "ORIONVERSION=$orion_version" >> $GITHUB_ENV
     
     - name: Upload Orion to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-orion
       with:
         file: "Build Components/orion"
-        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for Orion
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTORION=${{ steps.vt-orion.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Download Sposify .deb file from Dynastic repo
@@ -129,15 +132,15 @@ jobs:
         echo "SPOSIFYVERSION=$sposify_version" >> $GITHUB_ENV
     
     - name: Upload Sposify to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-sposify
       with:
         file: "Build Components/sposify"
-        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for Sposify
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTSPOSIFY=${{ steps.vt-sposify.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Download SposifyFix .deb file from Level3tjg repo
@@ -150,15 +153,15 @@ jobs:
         echo "SPOSIFYFIXVERSION=$sposifyfix_version" >> $GITHUB_ENV
     
     - name: Upload SposifyFix to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-sposifyfix
       with:
         file: "Build Components/sposifyfix"
-        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for SposifyFix
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTSPOSIFYFIX=${{ steps.vt-sposifyfix.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Clone OpenSpotifySafariExtension
@@ -175,15 +178,15 @@ jobs:
         zip -r ../Build\ Components/OpenSpotifySafariExtension.zip ./*
     
     - name: Upload OpenSpotifySafariExtension to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-openspotify
       with:
         file: "Build Components/OpenSpotifySafariExtension.zip"
-        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for OpenSpotifySafariExtension
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTEXT=${{ steps.vt-openspotify.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Duplicate and unzip Spotify.ipa
@@ -229,15 +232,15 @@ jobs:
       run: pyzule -i ${{ env.spotifyEXTpath }} -o ${{ env.componentspath }}/SpotifyPatched.ipa -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f ${{ env.sposifyfix }} ${{ env.sposify }} ${{ env.orion }} ${{ env.swiftprotobuf }} ${{ env.eevee-arm }} -u
 
     - name: Upload SpotifyPatched.ipa to VirusTotal
-      if: secrets.VIRUSTOTALKEY
+      if: ${{ env.VIRUSTOTALKEY }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-spotc
       with:
         file: "${{ env.componentspath }}/SpotifyPatched.ipa"
-        api_key: ${{ secrets.VIRUSTOTALKEY }}
+        api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for SpotC++
-      if: secrets.VIRUSTOTALKEY
+      if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTSPOTC=${{ steps.vt-spotc.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Create GitHub Release
