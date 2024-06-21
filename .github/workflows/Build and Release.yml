@@ -109,8 +109,8 @@ jobs:
         curl -L "$protobuf_asset" -o "Build Components/SwiftProtobuf-arm"
         echo "swiftprotobuf=Build Components/SwiftProtobuf-arm" >> $GITHUB_ENV
         filename=$(basename "${protobuf_asset}")
-        version=$(echo "${filename}" | grep -oP '(?<=org.swift.protobuf.swiftprotobuf_)[^_]+(?=_iphoneos-arm.deb)')
-        echo "SWIFTPROTOBUFVERSION=${version}" >> $GITHUB_ENV
+        protobuf_version=$(echo "${filename}" | grep -oP '(?<=org.swift.protobuf.swiftprotobuf_)[^_]+(?=_iphoneos-arm.deb)')
+        echo "SWIFTPROTOBUFVERSION=${protobuf_version}" >> $GITHUB_ENV
       env:
         REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
     
