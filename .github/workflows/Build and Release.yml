@@ -78,7 +78,7 @@ jobs:
       with:
         files: "Build Components/Spotify.ipa"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
-        verbose: false
+        
     - name: Set VirusTotal Analysis URL for Spotify IPA
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTVANILLASPOTIFY=${{ steps.vt-spotify.outputs.analysis }}" >> $GITHUB_ENV
@@ -98,7 +98,7 @@ jobs:
       with:
         files: "Build Components/Eevee-arm"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
-        verbose: false
+        
     - name: Set VirusTotal Analysis URL for EeveeSpotify
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTEEVEE=${{ steps.vt-eevee.outputs.analysis }}" >> $GITHUB_ENV
@@ -121,7 +121,7 @@ jobs:
       with:
         files: "Build Components/SwiftProtobuf-arm"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
-        verbose: false
+        
     - name: Set VirusTotal Analysis URL for SwiftProtobuf
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTSWIFTPROTOBUF=${{ steps.vt-swiftprotobuf.outputs.analysis }}" >> $GITHUB_ENV
@@ -148,7 +148,7 @@ jobs:
       with:
         files: "Build Components/orion"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
-        verbose: false
+        
     - name: Set VirusTotal Analysis URL for Orion
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTORION=${{ steps.vt-orion.outputs.analysis }}" >> $GITHUB_ENV
@@ -169,7 +169,7 @@ jobs:
       with:
         files: "Build Components/sposify"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
-        verbose: false
+        
     - name: Set VirusTotal Analysis URL for Sposify
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTSPOSIFY=${{ steps.vt-sposify.outputs.analysis }}" >> $GITHUB_ENV
@@ -190,7 +190,7 @@ jobs:
       with:
         files: "Build Components/sposifyfix"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
-        verbose: false
+        
     - name: Set VirusTotal Analysis URL for SposifyFix
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTSPOSIFYFIX=${{ steps.vt-sposifyfix.outputs.analysis }}" >> $GITHUB_ENV
@@ -215,7 +215,7 @@ jobs:
       with:
         files: "Build Components/OpenSpotifySafariExtension.zip"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
-        verbose: false
+        
     - name: Set VirusTotal Analysis URL for OpenSpotifySafariExtension
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTEXT=${{ steps.vt-openspotify.outputs.analysis }}" >> $GITHUB_ENV
@@ -269,7 +269,7 @@ jobs:
       with:
         files: "${{ env.componentspath }}/SpotifyPatched.ipa"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
-        verbose: false
+        
     - name: Set VirusTotal Analysis URL for SpotC++
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTSPOTC=${{ steps.vt-spotc.outputs.analysis }}" >> $GITHUB_ENV
