@@ -135,9 +135,8 @@ jobs:
         # Extract necessary details from the Orion entry using sed
         orion_version=$(echo "$orion_entry" | sed -n 's/^Version: //p')
         orion_download_url=$(echo "$orion_entry" | sed -n 's/^Filename: //p')
-        full_orion_url="https://repo.chariz.com/${orion_download_url}"
         # Download Orion .deb file
-        curl -L "$full_orion_url" -o "Build Components/orion"
+        curl -L "https://repo.chariz.com/${{ orion_download_url }}" -o "Build Components/orion"
         # Set environment variables
         echo "orion=Build Components/orion" >> $GITHUB_ENV
         echo "ORIONVERSION=$orion_version" >> $GITHUB_ENV
