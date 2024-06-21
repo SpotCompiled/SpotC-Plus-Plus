@@ -85,7 +85,7 @@ jobs:
 
     - name: Download EeveeSpotify .deb files
       run: |
-        eevee_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ steps.get-eevee-tag.outputs.REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and endswith("iphoneos-arm.deb")).browser_download_url')
+        eevee_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and endswith("iphoneos-arm.deb")).browser_download_url')
         curl -L "$eevee_asset" -o "Build Components/Eevee-arm"
         echo "eevee-arm=Build Components/Eevee-arm" >> $GITHUB_ENV
       env:
