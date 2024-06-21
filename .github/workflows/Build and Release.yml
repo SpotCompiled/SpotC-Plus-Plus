@@ -30,25 +30,29 @@ jobs:
     - name: Install Pyzule
       run: bash -c "$(curl https://raw.githubusercontent.com/asdfzxcvbn/pyzule/main/install-pyzule.sh)"
 
-    - name: Get EeveeSpotify release tags
-      id: get-tags
-      run: |
-        tags=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/tags | jq -r '.[].name')
-        echo "tags=$tags" >> $GITHUB_ENV
-
-    - name: Determine EeveeSpotify version
+    - name: Determine real Eevee version
       id: determine-version
-      run: |
-        if [ -n "${{ env.EEVEEVERSION }}" ]; then
-          REALEEVEEVERSION=$(echo $tags | tr ' ' '\n' | grep "${{ env.EEVEEVERSION }}" | head -n 1)
-          if [ -z "$REALEEVEEVERSION" ]; then
-            echo "No matching tag found for EEVEEVERSION: ${{ env.EEVEEVERSION }}"
-            exit 1
-          fi
-        else
-          REALEEVEEVERSION=$(echo $tags | tr ' ' '\n' | head -n 1)
-        fi
-        echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { data: releases } = await github.repos.listReleases({
+            owner: 'whoeevee',
+            repo: 'EeveeSpotify'
+          });
+
+          let realEeveeVersion;
+          if (process.env.EEVEEVERSION) {
+            realEeveeVersion = releases.find(release => release.tag_name.includes(process.env.EEVEEVERSION));
+            if (realEeveeVersion) {
+              realEeveeVersion = realEeveeVersion.tag_name;
+            } else {
+              throw new Error(`No release found containing version: ${process.env.EEVEEVERSION}`);
+            }
+          } else {
+            realEeveeVersion = releases[0].tag_name;
+          }
+
+          core.setOutput('REALEEVEEVERSION', realEeveeVersion);
 
     - name: Create Build Components folder
       run: mkdir -p "Build Components"
