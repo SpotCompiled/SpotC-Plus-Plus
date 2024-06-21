@@ -20,19 +20,34 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Set up variables
+      id: setup
+      run: |
+        echo "EEVEEVERSION=${{ github.event.inputs.EEVEEVERSION }}" >> $GITHUB_ENV
+        echo "CHANGEVERSION=${{ github.event.inputs.CHANGEVERSION }}" >> $GITHUB_ENV
+        echo "SPOTURL=${{ github.event.inputs.SPOTURL }}" >> $GITHUB_ENV
+
     - name: Install Pyzule
       run: bash -c "$(curl https://raw.githubusercontent.com/asdfzxcvbn/pyzule/main/install-pyzule.sh)"
-    
-    - name: Fetch EeveeSpotify release tags
-      id: get-eevee-tag
+
+    - name: Get EeveeSpotify release tags
+      id: get-tags
       run: |
-        EEVEEVERSION="${{ github.event.inputs.EEVEEVERSION }}"
-        if [ -z "$EEVEEVERSION" ]; then
-          REALEEVEEVERSION=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest | jq -r .tag_name)
+        tags=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/tags | jq -r '.[].name')
+        echo "tags=$tags" >> $GITHUB_ENV
+
+    - name: Determine EeveeSpotify version
+      id: determine-version
+      run: |
+        if [ -n "${{ env.EEVEEVERSION }}" ]; then
+          REALEEVEEVERSION=$(echo $tags | tr ' ' '\n' | grep "${{ env.EEVEEVERSION }}" | head -n 1)
+          if [ -z "$REALEEVEEVERSION" ]; then
+            echo "No matching tag found for EEVEEVERSION: ${{ env.EEVEEVERSION }}"
+            exit 1
+          fi
         else
-          REALEEVEEVERSION=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases | jq -r ".[] | select(.tag_name | contains(\"$EEVEEVERSION\")).tag_name")
+          REALEEVEEVERSION=$(echo $tags | tr ' ' '\n' | head -n 1)
         fi
-        echo "::set-output name=REALEEVEEVERSION::$REALEEVEEVERSION"
         echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
 
     - name: Create Build Components folder
