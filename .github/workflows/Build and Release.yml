@@ -30,29 +30,33 @@ jobs:
     - name: Install Pyzule
       run: bash -c "$(curl https://raw.githubusercontent.com/asdfzxcvbn/pyzule/main/install-pyzule.sh)"
 
-    - name: Determine real Eevee version
-      id: determine-version
-      uses: actions/github-script@v6
+    - name: Set EEVEEVERSION if not provided
+      if: ${{ github.event.inputs.EEVEEVERSION == '' || github.event.inputs.EEVEEVERSION == null }}
+      run: |
+        echo "EEVEEVERSION not provided, fetching latest release tag..."
+        export REALEEVEEVERSION=$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest" | jq -r '.tag_name')
+        echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
+
+    - name: Set REALEEVEEVERSION based on input
+      if: ${{ github.event.inputs.EEVEEVERSION != '' && github.event.inputs.EEVEEVERSION != null }}
+      id: find-release
+      uses: octokit/request-action@v2.x
       with:
-        script: |
-          const { data: releases } = await github.repos.listReleases({
-            owner: 'whoeevee',
-            repo: 'EeveeSpotify'
-          });
+        route: GET /repos/whoeevee/EeveeSpotify/releases
+      env:
+        EEVEEVERSION: ${{ github.event.inputs.EEVEEVERSION }}
 
-          let realEeveeVersion;
-          if (process.env.EEVEEVERSION) {
-            realEeveeVersion = releases.find(release => release.tag_name.includes(process.env.EEVEEVERSION));
-            if (realEeveeVersion) {
-              realEeveeVersion = realEeveeVersion.tag_name;
-            } else {
-              throw new Error(`No release found containing version: ${process.env.EEVEEVERSION}`);
-            }
-          } else {
-            realEeveeVersion = releases[0].tag_name;
-          }
-
-          core.setOutput('REALEEVEEVERSION', realEeveeVersion);
+    - name: Extract release tag
+      if: ${{ steps.find-release.outputs.data }}
+      run: |
+        RELEASES=$(echo "${{ steps.find-release.outputs.data }}" | jq -r '.[].tag_name')
+        for tag in $RELEASES; do
+          if [[ $tag == *"${EEVEEVERSION}"* ]]; then
+            export REALEEVEEVERSION=$tag
+            break
+          fi
+        done
+        echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
 
     - name: Create Build Components folder
       run: mkdir -p "Build Components"
