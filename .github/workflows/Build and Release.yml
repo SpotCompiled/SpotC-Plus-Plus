@@ -52,8 +52,8 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-spotify
       with:
-        file: "Build Components/Spotify.ipa"
-        api_key: ${{ env.VIRUSTOTALKEY }}
+        files: "Build Components/Spotify.ipa"
+        vt_api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for Spotify IPA
       if: ${{ env.VIRUSTOTALKEY }}
@@ -72,8 +72,8 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-eevee
       with:
-        file: "Build Components/Eevee-arm"
-        api_key: ${{ env.VIRUSTOTALKEY }}
+        files: "Build Components/Eevee-arm"
+        vt_api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for EeveeSpotify
       if: ${{ env.VIRUSTOTALKEY }}
@@ -94,8 +94,8 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-swiftprotobuf
       with:
-        file: "Build Components/SwiftProtobuf-arm"
-        api_key: ${{ env.VIRUSTOTALKEY }}
+        files: "Build Components/SwiftProtobuf-arm"
+        vt_api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for SwiftProtobuf
       if: ${{ env.VIRUSTOTALKEY }}
@@ -115,8 +115,8 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-orion
       with:
-        file: "Build Components/orion"
-        api_key: ${{ env.VIRUSTOTALKEY }}
+        files: "Build Components/orion"
+        vt_api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for Orion
       if: ${{ env.VIRUSTOTALKEY }}
@@ -136,8 +136,8 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-sposify
       with:
-        file: "Build Components/sposify"
-        api_key: ${{ env.VIRUSTOTALKEY }}
+        files: "Build Components/sposify"
+        vt_api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for Sposify
       if: ${{ env.VIRUSTOTALKEY }}
@@ -157,8 +157,8 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-sposifyfix
       with:
-        file: "Build Components/sposifyfix"
-        api_key: ${{ env.VIRUSTOTALKEY }}
+        files: "Build Components/sposifyfix"
+        vt_api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for SposifyFix
       if: ${{ env.VIRUSTOTALKEY }}
@@ -182,8 +182,8 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-openspotify
       with:
-        file: "Build Components/OpenSpotifySafariExtension.zip"
-        api_key: ${{ env.VIRUSTOTALKEY }}
+        files: "Build Components/OpenSpotifySafariExtension.zip"
+        vt_api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for OpenSpotifySafariExtension
       if: ${{ env.VIRUSTOTALKEY }}
@@ -236,8 +236,8 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-spotc
       with:
-        file: "${{ env.componentspath }}/SpotifyPatched.ipa"
-        api_key: ${{ env.VIRUSTOTALKEY }}
+        files: "${{ env.componentspath }}/SpotifyPatched.ipa"
+        vt_api_key: ${{ env.VIRUSTOTALKEY }}
         verbose: false
     - name: Set VirusTotal Analysis URL for SpotC++
       if: ${{ env.VIRUSTOTALKEY }}
