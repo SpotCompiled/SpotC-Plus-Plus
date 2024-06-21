@@ -128,12 +128,19 @@ jobs:
 
     - name: Download Orion .deb file from Chariz repo
       run: |
-        orion_url=$(curl -s https://repo.chariz.com/Packages | jq -r '.[] | select(.package=="dev.theos.orion14").versions[0].depiction.url')
-        orion_version=$(curl -s "$orion_url" | grep -oP '(?<=<h1 class="text-h3">Orion ).*(?=</h1>)')
-        orion_download_url=$(curl -s "$orion_url" | grep -oP '(?<=<a class="button" href=").*(?=">Download</a>)')
-        curl -L "$orion_download_url" -o "Build Components/orion"
+        # Fetch the Packages file from Chariz repo
+        packages_data=$(curl -s https://repo.chariz.com/Packages)
+        # Find the entry for Orion package
+        orion_entry=$(echo "$packages_data" | awk '/Package: dev.theos.orion14/,/^$/')
+        # Extract necessary details from the Orion entry
+        orion_version=$(echo "$orion_entry" | grep -oP 'Version: \K.*')
+        orion_download_url=$(echo "$orion_entry" | grep -oP 'Filename: \K.*')
+        # Download Orion .deb file
+        curl -L "https://repo.chariz.com/$orion_download_url" -o "Build Components/orion"
+        # Set environment variables
         echo "orion=Build Components/orion" >> $GITHUB_ENV
         echo "ORIONVERSION=$orion_version" >> $GITHUB_ENV
+
     
     - name: Upload Orion to VirusTotal
       if: ${{ env.VIRUSTOTALKEY }}
