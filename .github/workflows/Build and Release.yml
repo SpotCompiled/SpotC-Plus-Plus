@@ -89,7 +89,7 @@ jobs:
         curl -L "$eevee_asset" -o "Build Components/Eevee-arm"
         echo "eevee-arm=Build Components/Eevee-arm" >> $GITHUB_ENV
       env:
-        REALEEVEEVERSION: ${{ steps.get-eevee-tag.outputs.REALEEVEEVERSION }}
+        REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
     
     - name: Upload EeveeSpotify to VirusTotal
       if: ${{ env.VIRUSTOTALKEY }}
@@ -105,7 +105,7 @@ jobs:
 
     - name: Download SwiftProtobuf .deb file
       run: |
-        protobuf_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/$REALEEVEEVERSION | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
+        protobuf_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
         protobuf_version=$(echo "$protobuf_asset" | grep -oP '(?<=org.swift.protobuf.swiftprotobuf_).*(?=_iphoneos-arm.deb)')
         curl -L "$protobuf_asset" -o "Build Components/SwiftProtobuf-arm"
         echo "swiftprotobuf=Build Components/SwiftProtobuf-arm" >> $GITHUB_ENV
