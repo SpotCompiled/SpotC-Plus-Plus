@@ -137,6 +137,7 @@ jobs:
         orion_version=$(echo "$orion_entry" | sed -n 's/^Version: //p')
         orion_download_url=$(echo "$orion_entry" | sed -n 's/^Filename: //p')
         # Download Orion .deb file
+        echo "https://repo.chariz.com/${orion_download_url}"
         curl -L "https://repo.chariz.com/${orion_download_url}" -o "Build Components/orion"
         # Set environment variables
         echo "orion=Build Components/orion" >> $GITHUB_ENV
