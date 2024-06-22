@@ -154,7 +154,7 @@ jobs:
         #Download the .deb file
         echo "Downloading From: https://repo.chariz.com/$FILENAME"
         curl -o "Build Components/orion" "https://repo.chariz.com/$FILENAME"
-        echo "orion=Build Components/orion" >> $GITHUB_ENV
+        echo "orion=Build Components/orion.deb" >> $GITHUB_ENV
         
 
         #Check Hash
