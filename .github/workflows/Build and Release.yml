@@ -131,17 +131,36 @@ jobs:
       run: |
         # Fetch the Packages file from Chariz repo
         packages_data=$(curl -s https://repo.chariz.com/Packages)
-        # Find the entry for Orion package
-        orion_entry=$(echo "$packages_data" | awk '/Package: dev.theos.orion14/,/^$/')
-        # Extract necessary details from the Orion entry using sed
-        orion_version=$(echo "$orion_entry" | sed -n 's/^Version: //p')
-        orion_download_url=$(echo "$orion_entry" | sed -n 's/^Filename: //p')
+        
+        # Find all entries for Orion package
+        orion_entries=$(echo "$packages_data" | awk '/Package: dev.theos.orion14/,/^$/' | awk '/^Package: /{print "---"}{print}')
+        
+        # Separate entries and filter by Architecture: iphoneos-arm
+        filtered_entries=$(echo "$orion_entries" | awk 'BEGIN { RS="---"; FS="\n" } /Architecture: iphoneos-arm/')
+        
+        highest_version=""
+        best_entry=""
+        
+        # Loop through filtered entries to find the highest version
+        while IFS= read -r entry; do
+          version=$(echo "$entry" | sed -n 's/^Version: //p')
+          
+          if [ -z "$highest_version" ] || dpkg --compare-versions "$version" "gt" "$highest_version"; then
+            highest_version="$version"
+            best_entry="$entry"
+          fi
+        done <<< "$filtered_entries"
+        
+        # Extract necessary details from the best entry using sed
+        orion_download_url=$(echo "$best_entry" | sed -n 's/^Filename: //p')
+        
         # Download Orion .deb file
         echo "https://repo.chariz.com/${orion_download_url}"
         curl -L "https://repo.chariz.com/${orion_download_url}" -o "Build Components/orion"
+        
         # Set environment variables
         echo "orion=Build Components/orion" >> $GITHUB_ENV
-        echo "ORIONVERSION=$orion_version" >> $GITHUB_ENV
+        echo "ORIONVERSION=$highest_version" >> $GITHUB_ENV
 
     - name: Upload Orion to VirusTotal
       if: ${{ env.VIRUSTOTALKEY }}
