@@ -144,15 +144,28 @@ jobs:
         # Find all entries for Orion package
         orion_entries=$(echo "$packages_data" | awk '/Package: dev.theos.orion14/,/^$/' | awk '/^Package: /{print "---"}{print}')
         
+        # Debug: Print all orion entries
+        echo "$orion_entries"
+        
         # Separate entries and filter by Architecture: iphoneos-arm
         filtered_entries=$(echo "$orion_entries" | awk 'BEGIN { RS="---"; FS="\n" } /Architecture: iphoneos-arm/')
+        
+        # Debug: Print filtered entries
+        echo "$filtered_entries"
         
         highest_version=""
         best_entry=""
         
         # Loop through filtered entries to find the highest version
         while IFS= read -r entry; do
+          # Debug: Print each entry being processed
+          echo "Processing entry:"
+          echo "$entry"
+          
           version=$(echo "$entry" | sed -n 's/^Version: //p')
+          
+          # Debug: Print the version of the current entry
+          echo "Version found: $version"
           
           if [ -z "$highest_version" ] || dpkg --compare-versions "$version" "gt" "$highest_version"; then
             highest_version="$version"
@@ -160,11 +173,17 @@ jobs:
           fi
         done <<< "$filtered_entries"
         
+        # Debug: Print the best entry found
+        echo "Best entry found:"
+        echo "$best_entry"
+        
         # Extract necessary details from the best entry using sed
         orion_download_url=$(echo "$best_entry" | sed -n 's/^Filename: //p')
         
+        # Debug: Print the download URL
+        echo "Download URL: https://repo.chariz.com/${orion_download_url}"
+        
         # Download Orion .deb file
-        echo "https://repo.chariz.com/${orion_download_url}"
         curl -L "https://repo.chariz.com/${orion_download_url}" -o "Build Components/orion"
         
         # Set environment variables
