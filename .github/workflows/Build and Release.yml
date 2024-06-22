@@ -75,8 +75,12 @@ jobs:
 
     - name: Download Spotify IPA
       run: |
-        curl -L "${{ github.event.inputs.SPOTURL }}" -o "Build Components/Spotify.ipa"
-        echo "spotifypath=Build Components/Spotify.ipa" >> $GITHUB_ENV
+        echo "Downloading From: ${{ github.event.inputs.SPOTURL }}"
+        # Download the file using curl
+        curl -LJO "${{ github.event.inputs.SPOTURL }}"
+        downloaded_file=$(ls -t | head -n1)
+        mv "$downloaded_file" "Build Components/"
+        echo "spotifypath=Build Components/$downloaded_file" >> $GITHUB_ENV
       env:
         SPOTURL: ${{ github.event.inputs.SPOTURL }}
       
@@ -85,7 +89,7 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-spotify
       with:
-        files: "Build Components/Spotify.ipa"
+        files: "$spotifypath"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for Spotify IPA
@@ -95,8 +99,12 @@ jobs:
     - name: Download EeveeSpotify .deb files
       run: |
         eevee_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and endswith("iphoneos-arm.deb")).browser_download_url')
-        curl -L "$eevee_asset" -o "Build Components/Eevee-arm"
-        echo "eevee-arm=Build Components/Eevee-arm" >> $GITHUB_ENV
+        echo "Downloading From: $eevee_asset"
+        # Download the file using curl
+        curl -LJO "$eevee_asset"
+        downloaded_file=$(ls -t | head -n1)
+        mv "$downloaded_file" "Build Components/"
+        echo "eevee-arm=Build Components/$downloaded_file" >> $GITHUB_ENV
       env:
         REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
     
@@ -105,7 +113,7 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-eevee
       with:
-        files: "Build Components/Eevee-arm"
+        files: "$eevee-arm"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for EeveeSpotify
@@ -115,8 +123,12 @@ jobs:
     - name: Download SwiftProtobuf .deb file
       run: |
         protobuf_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
-        curl -L "$protobuf_asset" -o "Build Components/SwiftProtobuf-arm"
-        echo "swiftprotobuf=Build Components/SwiftProtobuf-arm" >> $GITHUB_ENV
+        echo "Downloading From: $protobuf_asset"
+        # Download the file using curl
+        curl -LJO "$protobuf_asset"
+        downloaded_file=$(ls -t | head -n1)
+        mv "$downloaded_file" "Build Components/"
+        echo "swiftprotobuf=Build Components/$downloaded_file" >> $GITHUB_ENV
         filename=$(basename "${protobuf_asset}")
         protobuf_version=$(echo "${filename}" | sed -n 's/org.swift.protobuf.swiftprotobuf_\([^-]*\)_iphoneos-arm.deb/\1/p')
         echo "SWIFTPROTOBUFVERSION=${protobuf_version}" >> $GITHUB_ENV
@@ -128,7 +140,7 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-swiftprotobuf
       with:
-        files: "Build Components/SwiftProtobuf-arm"
+        files: "$swiftprotobuf"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for SwiftProtobuf
@@ -153,10 +165,11 @@ jobs:
         
         #Download the .deb file
         echo "Downloading From: https://repo.chariz.com/$FILENAME"
-        curl -o "Build Components/orion" "https://repo.chariz.com/$FILENAME"
-        ls "Build Components"
-        echo "orion=Build Components/orion" >> $GITHUB_ENV
-        
+        # Download the file using curl
+        curl -LJO "https://repo.chariz.com/$FILENAME"
+        downloaded_file=$(ls -t | head -n1)
+        mv "$downloaded_file" "Build Components/"
+        echo "orion=Build Components/$downloaded_file" >> $GITHUB_ENV
 
         #Check Hash
         if [[ "${SHA256}" != "noSHA" ]]; then
@@ -192,7 +205,7 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-orion
       with:
-        files: "Build Components/orion"
+        files: "$orion"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for Orion
