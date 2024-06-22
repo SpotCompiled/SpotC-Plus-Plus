@@ -158,8 +158,8 @@ jobs:
         
 
         #Check Hash
-        if [[ "${{ SHA256 }}" != "noSHA" ]]; then
-          echo "Expected SHA256 Hash: ${{ SHA256 }}"
+        if [[ "${SHA256}" != "noSHA" ]]; then
+          echo "Expected SHA256 Hash: ${SHA256}"
           calculated_sha256=$(sha256sum "$orion" | awk '{print $1}')
           echo "Calculated SHA256 Hash: $calculated_sha256"
           if [[ "${calculated_sha256}" == "${SHA256}" ]]; then
@@ -168,8 +168,8 @@ jobs:
             echo "SHA256 does not match."
             exit 1
           fi
-        elif [[ "${{ MD5 }}" != "noMD5" ]]; then
-          echo "Expected MD5 Hash: ${{ MD5 }}"
+        elif [[ "${MD5}" != "noMD5" ]]; then
+          echo "Expected MD5 Hash: ${MD5}"
           calculated_md5=$(md5sum "$orion" | awk '{print $1}')
           echo "Calculated MD5 Hash: $calculated_md5"
           if [[ "${calculated_md5}" == "${MD5}" ]]; then
