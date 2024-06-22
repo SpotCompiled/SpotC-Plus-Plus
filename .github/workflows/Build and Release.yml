@@ -130,7 +130,7 @@ jobs:
         echo "$downloaded_file"
         mv "$downloaded_file" "Build Components/"
         echo "swiftprotobuf=Build Components/$downloaded_file" >> $GITHUB_ENV
-        echo "$swiftprotobuf"
+        echo "${{ env.swiftprotobuf }}"
         filename=$(basename "${protobuf_asset}")
         protobuf_version=$(echo "${filename}" | sed -n 's/org.swift.protobuf.swiftprotobuf_\([^-]*\)_iphoneos-arm.deb/\1/p')
         echo "SWIFTPROTOBUFVERSION=${protobuf_version}" >> $GITHUB_ENV
@@ -142,7 +142,7 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-swiftprotobuf
       with:
-        files: "$swiftprotobuf"
+        files: "${{ env.swiftprotobuf }}"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for SwiftProtobuf
