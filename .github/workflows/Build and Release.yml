@@ -162,8 +162,7 @@ jobs:
         echo "Orion SHA256 Hash Extracted: $SHA256"
         MD5=$(awk 'BEGIN{RS="";FS="\n";highest_version="";md5sum="noMD5"} $1~/^Package: dev.theos.orion14$/ && $0~/Architecture: iphoneos-arm/{current_version="";for(i=1;i<=NF;i++){if($i~/^Version: /){split($i,a," ");version=a[2];if(current_version==""||version>current_version){current_version=version}}else if($i~/^MD5Sum: /){split($i,a," ");md5sum=a[2]}}if(highest_version==""||current_version>highest_version){highest_version=current_version;highest_md5sum=md5sum}} END{if(highest_version!="")print highest_md5sum}' Packages)
         echo "Orion MD5 Hash Extracted: $MD5"
-        
-        #Download the .deb file
+
         echo "Downloading From: https://repo.chariz.com/$FILENAME"
         # Download the file using curl
         curl -LJO "https://repo.chariz.com/$FILENAME"
@@ -174,10 +173,8 @@ jobs:
         #Check Hash
         if [[ "${SHA256}" != "noSHA" ]]; then
           echo "Expected SHA256 Hash: ${SHA256}"
-          echo "orion path: ${{ env.orion }}"
-          echo "Folder contains:"
-          ls "Build Components/"
-          calculated_sha256=$(shasum -a 256 "${{ env.orion }}" | awk '{print $1}')
+          echo "orion path: $orion"
+          calculated_sha256=$(shasum -a 256 "$orion" | awk '{print $1}')
           echo "Calculated SHA256 Hash: $calculated_sha256"
           if [[ "${calculated_sha256}" == "${SHA256}" ]]; then
             echo "SHA256 matches. Continuing..."
@@ -187,7 +184,7 @@ jobs:
           fi
         elif [[ "${MD5}" != "noMD5" ]]; then
           echo "Expected MD5 Hash: ${MD5}"
-          calculated_md5=$(md5 -q "${{ env.orion }}" | awk '{print $1}')
+          calculated_md5=$(md5 -q "$orion" | awk '{print $1}')
           echo "Calculated MD5 Hash: $calculated_md5"
           if [[ "${calculated_md5}" == "${MD5}" ]]; then
             echo "MD5 matches. Continuing..."
