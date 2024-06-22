@@ -43,8 +43,7 @@ jobs:
       if: ${{ github.event.inputs.EEVEEVERSION == '' || github.event.inputs.EEVEEVERSION == null }}
       run: |
         echo "EEVEEVERSION not provided, fetching latest release tag..."
-        export REALEEVEEVERSION=$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest" | jq -r '.tag_name')
-        echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
+        echo "REALEEVEEVERSION=$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest" | jq -r '.tag_name')" >> $GITHUB_ENV
 
     - name: Set RealEeveeVersion if tag provided
       if: ${{ env.EEVEEVERSION != '' }}
