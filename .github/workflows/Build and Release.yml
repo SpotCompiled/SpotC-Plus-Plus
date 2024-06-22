@@ -167,8 +167,8 @@ jobs:
         curl -LJO "https://repo.chariz.com/$FILENAME"
         downloaded_file=$(ls -t | head -n1)
         mv "$downloaded_file" "Build Components/"
-        orion=$(Build Components/$downloaded_file)
-
+        orion="Build Components/$downloaded_file"
+        
         #Check Hash
         if [[ "${SHA256}" != "noSHA" ]]; then
           echo "Expected SHA256 Hash: ${SHA256}"
