@@ -27,6 +27,15 @@ jobs:
         echo "CHANGEVERSION=${{ github.event.inputs.CHANGEVERSION }}" >> $GITHUB_ENV
         echo "SPOTURL=${{ github.event.inputs.SPOTURL }}" >> $GITHUB_ENV
 
+    - name: Install Homebrew
+      run: |
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+  
+    - name: Install dpkg
+      run: brew install dpkg
+
     - name: Install Pyzule
       run: bash -c "$(curl https://raw.githubusercontent.com/asdfzxcvbn/pyzule/main/install-pyzule.sh)"
 
@@ -141,42 +150,11 @@ jobs:
         highest_version=""
         best_entry=""
         
-        # Function to compare versions
-        compare_versions() {
-          if [ "$1" = "$2" ]; then
-            return 0
-          fi
-
-          local IFS=.
-          local i ver1=($1) ver2=($2)
-
-          # Fill empty fields in ver1 with zeros
-          for ((i=${#ver1[@]}; i<${#ver2[@]}; i++)); do
-            ver1[i]=0
-          done
-
-          # Fill empty fields in ver2 with zeros
-          for ((i=${#ver2[@]}; i<${#ver1[@]}; i++)); do
-            ver2[i]=0
-          done
-
-          for ((i=0; i<${#ver1[@]}; i++)); do
-            if ((10#${ver1[i]} > 10#${ver2[i]})); then
-              return 1
-            fi
-            if ((10#${ver1[i]} < 10#${ver2[i]})); then
-              return 2
-            fi
-          done
-
-          return 0
-        }
-
         # Loop through filtered entries to find the highest version
         while IFS= read -r entry; do
           version=$(echo "$entry" | sed -n 's/^Version: //p')
           
-          if [ -z "$highest_version" ] || compare_versions "$version" "$highest_version"; then
+          if [ -z "$highest_version" ] || dpkg --compare-versions "$version" "gt" "$highest_version"; then
             highest_version="$version"
             best_entry="$entry"
           fi
