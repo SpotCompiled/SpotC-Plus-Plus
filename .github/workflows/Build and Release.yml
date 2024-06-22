@@ -58,6 +58,7 @@ jobs:
         for tag in $tags; do
           if [[ $tag == *"$EEVEEVERSION"* ]]; then
             echo "REALEEVEEVERSION=$tag" >> $GITHUB_ENV
+            echo "REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}"
             exit 0
           fi
         done
