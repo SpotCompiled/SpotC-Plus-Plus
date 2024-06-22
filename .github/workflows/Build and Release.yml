@@ -140,8 +140,8 @@ jobs:
         # Download the Packages file
         curl -sL https://repo.chariz.com/Packages -o Packages
     
-        # Find instances of Package: dev.theos.orion14 with Architecture: iphoneos-arm
-        info_chunks=$(awk '/^Package: dev.theos.orion14$/,/^$/ { print }' Packages | grep "Architecture: iphoneos-arm")
+        # Use sed to find instances of Package: dev.theos.orion14 with Architecture: iphoneos-arm
+        info_chunks=$(sed -n '/^Package: dev.theos.orion14$/,/^$/p' Packages | grep "Architecture: iphoneos-arm")
     
         # Initialize variables
         highest_version=""
@@ -150,22 +150,22 @@ jobs:
         
         # Loop through each info chunk to find the highest version
         while read -r chunk; do
-          # Extract version
-          version=$(echo "$chunk" | grep -oP '(?<=Version: ).*')
+          # Extract version using sed
+          version=$(echo "$chunk" | sed -n 's/^Version: //p')
           
           # Compare versions to find the highest
           if [[ -z $highest_version || "$(printf '%s\n' "$version" "$highest_version" | sort -V | tail -n 1)" == "$version" ]]; then
             highest_version="$version"
             
-            # Extract filename and construct download URL
-            orion_filename=$(echo "$chunk" | grep -oP '(?<=Filename: ).*')
+            # Extract filename and construct download URL using sed
+            orion_filename=$(echo "$chunk" | sed -n 's/^Filename: //p')
             download_url="https://repo.chariz.com/$orion_filename"
             
             # Download the file
             mkdir -p "Build Components"
             curl -sL "$download_url" -o "Build Components/$(basename "$orion_filename")"
             
-            # Extract SHA256 or MD5Sum
+            # Extract SHA256 or MD5Sum using sed
             if [[ "$chunk" =~ SHA256:\ ([0-9a-f]{64}) ]]; then
               orion_hash="${BASH_REMATCH[1]}"
             elif [[ "$chunk" =~ MD5Sum:\ ([0-9a-f]{32}) ]]; then
