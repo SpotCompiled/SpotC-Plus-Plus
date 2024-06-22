@@ -135,40 +135,58 @@ jobs:
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTSWIFTPROTOBUF=${{ steps.vt-swiftprotobuf.outputs.analysis }}" >> $GITHUB_ENV
 
-    - name: Download Orion .deb file from Chariz repo
+    - name: Download and process Orion Runtime
       run: |
-        # Fetch the Packages file from Chariz repo
-        packages_data=$(curl -s https://repo.chariz.com/Packages)
-        # Find all entries for Orion package and separate them
-        orion_entries=$(echo "$packages_data" | awk '/Package: dev.theos.orion14/,/^$/ {print} /^$/' | awk 'BEGIN {RS=""; FS="\n"} {print $0 "\n"}')
-        
-        highest_version=""
-        highest_entry=""
+        # Download the Packages file
+        curl -s https://repo.chariz.com/Packages -o Packages
 
-        # Iterate over each Orion entry
-        echo "$orion_entries" | while IFS= read -r entry; do
-          # Check if the entry has Architecture: iphoneos-arm
-          if echo "$entry" | grep -q "Architecture: iphoneos-arm"; then
-            # Extract the version of the entry
-            version=$(echo "$entry" | sed -n 's/^Version: //p')
-            # Compare versions
-            if [ -z "$highest_version" ] || dpkg --compare-versions "$version" gt "$highest_version"; then
-              highest_version="$version"
-              highest_entry="$entry"
-            fi
+        # Find instances of Package: dev.theos.orion14 with Architecture: iphoneos-arm
+        # Extract relevant info chunks and find the highest Version
+        ORIONVERSION=$(awk '/^Package: dev\.theos\.orion14$/, /^$/ {print}' Packages \
+                      | grep 'Architecture: iphoneos-arm' -A 14 \
+                      | awk '/^Version:/ {print $2}' \
+                      | sort -V \
+                      | tail -n 1)
+
+        echo "Highest version found: $ORIONVERSION"
+
+        # Extract Filename and SHA256 or MD5Sum for the selected version
+        INFO=$(awk -v ORIONVERSION="$ORIONVERSION" '/^Package: dev\.theos\.orion14$/, /^$/ {print}' Packages \
+              | grep -A 14 "Version: $ORIONVERSION" \
+              | grep 'Architecture: iphoneos-arm' \
+              | awk '/^Filename:/ {print $2}' \
+              | head -n 1)
+
+        FILENAME=$(echo "https://repo.chariz.com/$INFO")
+        echo "Downloading file from: $FILENAME"
+
+        # Download the file
+        curl -s -L -o "Build Components/orion.deb" "$FILENAME"
+
+        # Check the hash (SHA256 preferred, fallback to MD5Sum)
+        HASH=$(awk -v ORIONVERSION="$ORIONVERSION" '/^Package: dev\.theos\.orion14$/, /^$/ {print}' Packages \
+              | grep -A 14 "Version: $ORIONVERSION" \
+              | grep 'Architecture: iphoneos-arm' \
+              | awk '/^SHA256:/ {print $2; exit} /MD5Sum:/ {print $2; exit}')
+
+        if [[ -n "$HASH" ]]; then
+          echo "Expected hash: $HASH"
+          ACTUAL_HASH=$(shasum -a 256 "Build Components/orion.deb" | awk '{print $1}')
+          echo "Actual hash: $ACTUAL_HASH"
+
+          if [[ "$HASH" != "$ACTUAL_HASH" ]]; then
+            echo "Hash check failed! Expected $HASH but got $ACTUAL_HASH"
+            exit 1
+          else
+            echo "Hash check passed!"
           fi
-        done
-        
-        # Extract necessary details from the highest version entry using sed
-        orion_download_url=$(echo "$highest_entry" | sed -n 's/^Filename: //p')
-        
-        # Download Orion .deb file
-        echo "Downloading: https://repo.chariz.com/${orion_download_url}"
-        curl -L "https://repo.chariz.com/${orion_download_url}" -o "Build Components/orion"
-        
-        # Set environment variables
-        echo "orion=Build Components/orion" >> $GITHUB_ENV
-        echo "ORIONVERSION=$highest_version" >> $GITHUB_ENV
+        else
+          echo "No valid hash found in the Packages file."
+          exit 1
+        fi
+
+        # Set the path to the downloaded file to the 'orion' variable
+        echo "::set-output name=orion::Build Components/orion.deb"
 
     - name: Upload Orion to VirusTotal
       if: ${{ env.VIRUSTOTALKEY }}
