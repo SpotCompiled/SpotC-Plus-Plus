@@ -127,8 +127,10 @@ jobs:
         # Download the file using curl
         curl -LJO "$protobuf_asset"
         downloaded_file=$(ls -t | head -n1)
+        echo "$downloaded_file"
         mv "$downloaded_file" "Build Components/"
         echo "swiftprotobuf=Build Components/$downloaded_file" >> $GITHUB_ENV
+        echo "swiftprotobuf"
         filename=$(basename "${protobuf_asset}")
         protobuf_version=$(echo "${filename}" | sed -n 's/org.swift.protobuf.swiftprotobuf_\([^-]*\)_iphoneos-arm.deb/\1/p')
         echo "SWIFTPROTOBUFVERSION=${protobuf_version}" >> $GITHUB_ENV
