@@ -46,27 +46,25 @@ jobs:
         export REALEEVEEVERSION=$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest" | jq -r '.tag_name')
         echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
 
-    - name: Set REALEEVEEVERSION based on input
-      if: ${{ github.event.inputs.EEVEEVERSION != '' && github.event.inputs.EEVEEVERSION != null }}
-      id: find-release
-      uses: octokit/request-action@v2.x
-      with:
-        route: GET /repos/whoeevee/EeveeSpotify/releases
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      env:
-        EEVEEVERSION: ${{ github.event.inputs.EEVEEVERSION }}
-
-    - name: Extract release tag
-      if: ${{ steps.find-release.outputs.data }}
+    - name: Set RealEeveeVersion if tag provided
+      if: ${{ env.EEVEEVERSION != '' }}
+      id: fetch-tags
       run: |
-        RELEASES=$(echo "${{ steps.find-release.outputs.data }}" | jq -r '.[].tag_name')
-        for tag in $RELEASES; do
-          if [[ $tag == *"${EEVEEVERSION}"* ]]; then
-            export REALEEVEEVERSION=$tag
-            break
+        EEVEEVERSION="${{ env.EEVEEVERSION }}"
+        # Fetch all tags from the repository
+        tags=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/tags | jq -r '.[].name')
+        
+        # Find the tag that contains the EEVEEVERSION value
+        for tag in $tags; do
+          if [[ $tag == *"$EEVEEVERSION"* ]]; then
+            echo "REALEEVEEVERSION=$tag" >> $GITHUB_ENV
+            exit 0
           fi
         done
-        echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
+
+        # If no matching tag is found, fail the job
+        echo "No matching tag found for EEVEEVERSION=$EEVEEVERSION"
+        exit 1
 
     - name: Create Build Components folder
       run: mkdir -p "Build Components"
