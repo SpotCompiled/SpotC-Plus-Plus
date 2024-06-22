@@ -138,55 +138,60 @@ jobs:
     - name: Download and process Orion Runtime
       run: |
         # Download the Packages file
-        curl -s https://repo.chariz.com/Packages -o Packages
-
+        curl -sL https://repo.chariz.com/Packages -o Packages
+    
         # Find instances of Package: dev.theos.orion14 with Architecture: iphoneos-arm
-        # Extract relevant info chunks and find the highest Version
-        ORIONVERSION=$(awk '/^Package: dev\.theos\.orion14$/, /^$/ {print}' Packages \
-                      | grep 'Architecture: iphoneos-arm' -A 14 \
-                      | awk '/^Version:/ {print $2}' \
-                      | sort -V \
-                      | tail -n 1)
-
-        echo "Highest version found: $ORIONVERSION"
-
-        # Extract Filename and SHA256 or MD5Sum for the selected version
-        INFO=$(awk -v ORIONVERSION="$ORIONVERSION" '/^Package: dev\.theos\.orion14$/, /^$/ {print}' Packages \
-              | grep -A 14 "Version: $ORIONVERSION" \
-              | grep 'Architecture: iphoneos-arm' \
-              | awk '/^Filename:/ {print $2}' \
-              | head -n 1)
-
-        FILENAME=$(echo "https://repo.chariz.com/$INFO")
-        echo "Downloading file from: $FILENAME"
-
-        # Download the file
-        curl -s -L -o "Build Components/orion.deb" "$FILENAME"
-
-        # Check the hash (SHA256 preferred, fallback to MD5Sum)
-        HASH=$(awk -v ORIONVERSION="$ORIONVERSION" '/^Package: dev\.theos\.orion14$/, /^$/ {print}' Packages \
-              | grep -A 14 "Version: $ORIONVERSION" \
-              | grep 'Architecture: iphoneos-arm' \
-              | awk '/^SHA256:/ {print $2; exit} /MD5Sum:/ {print $2; exit}')
-
-        if [[ -n "$HASH" ]]; then
-          echo "Expected hash: $HASH"
-          ACTUAL_HASH=$(shasum -a 256 "Build Components/orion.deb" | awk '{print $1}')
-          echo "Actual hash: $ACTUAL_HASH"
-
-          if [[ "$HASH" != "$ACTUAL_HASH" ]]; then
-            echo "Hash check failed! Expected $HASH but got $ACTUAL_HASH"
-            exit 1
-          else
-            echo "Hash check passed!"
+        info_chunks=$(awk '/^Package: dev.theos.orion14$/,/^$/ { print }' Packages | grep "Architecture: iphoneos-arm")
+    
+        # Initialize variables
+        highest_version=""
+        orion_filename=""
+        orion_hash=""
+        
+        # Loop through each info chunk to find the highest version
+        while read -r chunk; do
+          # Extract version
+          version=$(echo "$chunk" | grep -oP '(?<=Version: ).*')
+          
+          # Compare versions to find the highest
+          if [[ -z $highest_version || "$(printf '%s\n' "$version" "$highest_version" | sort -V | tail -n 1)" == "$version" ]]; then
+            highest_version="$version"
+            
+            # Extract filename and construct download URL
+            orion_filename=$(echo "$chunk" | grep -oP '(?<=Filename: ).*')
+            download_url="https://repo.chariz.com/$orion_filename"
+            
+            # Download the file
+            mkdir -p "Build Components"
+            curl -sL "$download_url" -o "Build Components/$(basename "$orion_filename")"
+            
+            # Extract SHA256 or MD5Sum
+            if [[ "$chunk" =~ SHA256:\ ([0-9a-f]{64}) ]]; then
+              orion_hash="${BASH_REMATCH[1]}"
+            elif [[ "$chunk" =~ MD5Sum:\ ([0-9a-f]{32}) ]]; then
+              orion_hash="${BASH_REMATCH[1]}"
+            fi
+            
+            # Verify downloaded file hash
+            if [[ -n "$orion_hash" ]]; then
+              echo "$orion_hash  Build Components/$(basename "$orion_filename")" | shasum -a 256 --check -
+              if [ $? -ne 0 ]; then
+                echo "Hash verification failed for $orion_filename"
+                exit 1
+              fi
+            fi
           fi
-        else
-          echo "No valid hash found in the Packages file."
-          exit 1
-        fi
-
-        # Set the path to the downloaded file to the 'orion' variable
-        echo "::set-output name=orion::Build Components/orion.deb"
+        done <<< "$info_chunks"
+        
+        # Set the path to the downloaded file to the "orion" variable
+        echo "::set-output name=orion::Build Components/$(basename "$orion_filename")"
+    
+        # Set the ORIONVERSION variable
+        echo "::set-output name=ORIONVERSION::$highest_version"
+        
+        # Clean up
+        rm Packages
+      shell: bash
 
     - name: Upload Orion to VirusTotal
       if: ${{ env.VIRUSTOTALKEY }}
