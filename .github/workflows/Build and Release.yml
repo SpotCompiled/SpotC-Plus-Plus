@@ -137,61 +137,45 @@ jobs:
 
     - name: Download and process Orion Runtime
       run: |
-        # Download the Packages file
-        curl -sL https://repo.chariz.com/Packages -o Packages
+        # Download the Packages file from repo.chariz.com
+        curl -sSL https://repo.chariz.com/Packages -o Packages
     
-        # Use sed to find instances of Package: dev.theos.orion14 with Architecture: iphoneos-arm
-        info_chunks=$(sed -n '/^Package: dev.theos.orion14$/,/^$/p' Packages | grep "Architecture: iphoneos-arm")
-    
-        # Initialize variables
-        highest_version=""
-        orion_filename=""
-        orion_hash=""
+        # Use awk to find entries for dev.theos.orion14, Architecture: iphoneos-arm, find the highest version
+        # extract the version, filename, SHA256 Hash, and MD5 hash
+        ORIONVERSION=$(awk 'BEGIN { RS = ""; FS = "\n"; highest_version = "" } $1 ~ /^Package: dev.theos.orion14$/ && $0 ~ /Architecture: iphoneos-arm([^6]|$)/ { for (i = 1; i <= NF; i++) { if ($i ~ /^Version: /) { split($i, a, " "); version = a[2]; if (highest_version == "" || version > highest_version) { highest_version = version } } } } END { if (highest_version != "") print highest_version }' Packages)
+        FILENAME=$(awk 'BEGIN{RS="";FS="\n";highest_version=""} $1~/^Package: dev.theos.orion14$/ && $0~/Architecture: iphoneos-arm/{current_version="";current_filename="";for(i=1;i<=NF;i++){if($i~/^Version: /){split($i,a," ");version=a[2];if(current_version==""||version>current_version){current_version=version}}else if($i~/^Filename: /){split($i,a," ");current_filename=a[2]}}if(highest_version==""||current_version>highest_version){highest_version=current_version;highest_filename=current_filename}} END{if(highest_version!="")print highest_filename}' Packages)
+        SHA256=$(awk 'BEGIN{RS="";FS="\n";highest_version="";sha256="noSHA"} $1~/^Package: dev.theos.orion14$/ && $0~/Architecture: iphoneos-arm/{current_version="";sha256_found=0;for(i=1;i<=NF;i++){if($i~/^Version: /){split($i,a," ");version=a[2];if(current_version==""||version>current_version){current_version=version}}else if($i~/^SHA256: /){split($i,a," ");sha256=a[2];sha256_found=1}}if(highest_version==""||current_version>highest_version){highest_version=current_version;if(sha256_found==1){highest_sha256=sha256}else{highest_sha256="noSHA"}}}END{if(highest_version!="")print highest_sha256}' Packages)
+        MD5=$(awk 'BEGIN{RS="";FS="\n";highest_version="";md5sum="noMD5"} $1~/^Package: dev.theos.orion14$/ && $0~/Architecture: iphoneos-arm/{current_version="";for(i=1;i<=NF;i++){if($i~/^Version: /){split($i,a," ");version=a[2];if(current_version==""||version>current_version){current_version=version}}else if($i~/^MD5Sum: /){split($i,a," ");md5sum=a[2]}}if(highest_version==""||current_version>highest_version){highest_version=current_version;highest_md5sum=md5sum}} END{if(highest_version!="")print highest_md5sum}' Packages)
         
-        # Loop through each info chunk to find the highest version
-        while read -r chunk; do
-          # Extract version using sed
-          version=$(echo "$chunk" | sed -n 's/^Version: //p')
-          
-          # Compare versions to find the highest
-          if [[ -z $highest_version || "$(printf '%s\n' "$version" "$highest_version" | sort -V | tail -n 1)" == "$version" ]]; then
-            highest_version="$version"
-            
-            # Extract filename and construct download URL using sed
-            orion_filename=$(echo "$chunk" | sed -n 's/^Filename: //p')
-            download_url="https://repo.chariz.com/$orion_filename"
-            
-            # Download the file
-            mkdir -p "Build Components"
-            curl -sL "$download_url" -o "Build Components/$(basename "$orion_filename")"
-            
-            # Extract SHA256 or MD5Sum using sed
-            if [[ "$chunk" =~ SHA256:\ ([0-9a-f]{64}) ]]; then
-              orion_hash="${BASH_REMATCH[1]}"
-            elif [[ "$chunk" =~ MD5Sum:\ ([0-9a-f]{32}) ]]; then
-              orion_hash="${BASH_REMATCH[1]}"
-            fi
-            
-            # Verify downloaded file hash
-            if [[ -n "$orion_hash" ]]; then
-              echo "$orion_hash  Build Components/$(basename "$orion_filename")" | shasum -a 256 --check -
-              if [ $? -ne 0 ]; then
-                echo "Hash verification failed for $orion_filename"
-                exit 1
-              fi
-            fi
+        #Download the .deb file
+        echo "Download URL: https://repo.chariz.com/$FILENAME"
+        curl -o "Build Components/orion" "https://repo.chariz.com/$FILENAME"
+        echo "orion=Build Components/orion" >> $GITHUB_ENV
+        
+
+        #Check Hash
+        if [[ "${{ SHA256 }}" != "noSHA" ]]; then
+          echo "SHA256 Hash: ${{ SHA256 }}"
+          calculated_sha256=$(sha256sum "$orion" | awk '{print $1}')
+          if [[ "${calculated_sha256}" == "${SHA256}" ]]; then
+            echo "SHA256 matches. Continuing..."
+          else
+            echo "SHA256 does not match."
+            exit 1
           fi
-        done <<< "$info_chunks"
-        
-        # Set the path to the downloaded file to the "orion" variable
-        echo "::set-output name=orion::Build Components/$(basename "$orion_filename")"
-    
-        # Set the ORIONVERSION variable
-        echo "::set-output name=ORIONVERSION::$highest_version"
-        
-        # Clean up
-        rm Packages
-      shell: bash
+        elif [[ "${{ MD5 }}" != "noMD5" ]]; then
+          echo "MD5 Hash: ${{ MD5 }}"
+          calculated_md5=$(md5sum "$orion" | awk '{print $1}')
+          if [[ "${calculated_md5}" == "${MD5}" ]]; then
+            echo "MD5 matches. Continuing..."
+          else
+            echo "MD5 does not match."
+            exit 1
+          fi
+        else
+          echo "Neither SHA256 nor MD5 is valid"
+          exit 1
+        fi
 
     - name: Upload Orion to VirusTotal
       if: ${{ env.VIRUSTOTALKEY }}
