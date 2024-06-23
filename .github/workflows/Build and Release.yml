@@ -95,33 +95,6 @@ jobs:
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTVANILLASPOTIFY=${{ steps.vt-spotify.outputs.analysis }}" >> $GITHUB_ENV
 
-    - name: Download SwiftProtobuf .deb file
-      run: |
-        protobuf_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
-        echo "Downloading From: $protobuf_asset"
-        # Download the file using curl
-        curl -LJO "$protobuf_asset"
-        downloaded_file=$(ls -t | head -n1)
-        mv "$downloaded_file" "Build Components/"
-        echo "swiftprotobuf=Build Components/$downloaded_file" >> $GITHUB_ENV
-        filename=$(basename "${protobuf_asset}")
-        protobuf_version=$(echo "${filename}" | sed -n 's/org.swift.protobuf.swiftprotobuf_\([^-]*\)_iphoneos-arm.deb/\1/p')
-        echo "SWIFTPROTOBUFVERSION=${protobuf_version}" >> $GITHUB_ENV
-      env:
-        REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
-    
-    - name: Upload SwiftProtobuf to VirusTotal
-      if: ${{ env.VIRUSTOTALKEY }}
-      uses: crazy-max/ghaction-virustotal@v4
-      id: vt-swiftprotobuf
-      with:
-        files: "${{ env.swiftprotobuf }}"
-        vt_api_key: ${{ env.VIRUSTOTALKEY }}
-        
-    - name: Set VirusTotal Analysis URL for SwiftProtobuf
-      if: ${{ env.VIRUSTOTALKEY }}
-      run: echo "VTSWIFTPROTOBUF=${{ steps.vt-swiftprotobuf.outputs.analysis }}" >> $GITHUB_ENV
-
     - name: Download and process Orion
       run: |
         # Download the Packages file from repo.chariz.com
@@ -355,6 +328,33 @@ jobs:
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTEEVEE=${{ steps.vt-eevee.outputs.analysis }}" >> $GITHUB_ENV
 
+    - name: Download SwiftProtobuf .deb file
+      run: |
+        protobuf_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
+        echo "Downloading From: $protobuf_asset"
+        # Download the file using curl
+        curl -LJO "$protobuf_asset"
+        downloaded_file=$(ls -t | head -n1)
+        mv "$downloaded_file" "Build Components/"
+        echo "swiftprotobuf=Build Components/$downloaded_file" >> $GITHUB_ENV
+        filename=$(basename "${protobuf_asset}")
+        protobuf_version=$(echo "${filename}" | sed -n 's/org.swift.protobuf.swiftprotobuf_\([^-]*\)_iphoneos-arm.deb/\1/p')
+        echo "SWIFTPROTOBUFVERSION=${protobuf_version}" >> $GITHUB_ENV
+      env:
+        REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
+    
+    - name: Upload SwiftProtobuf to VirusTotal
+      if: ${{ env.VIRUSTOTALKEY }}
+      uses: crazy-max/ghaction-virustotal@v4
+      id: vt-swiftprotobuf
+      with:
+        files: "${{ env.swiftprotobuf }}"
+        vt_api_key: ${{ env.VIRUSTOTALKEY }}
+        
+    - name: Set VirusTotal Analysis URL for SwiftProtobuf
+      if: ${{ env.VIRUSTOTALKEY }}
+      run: echo "VTSWIFTPROTOBUF=${{ steps.vt-swiftprotobuf.outputs.analysis }}" >> $GITHUB_ENV
+
     - name: Clone OpenSpotifySafariExtension
       run: git clone https://github.com/whoeevee/OpenSpotifySafariExtension
     
@@ -425,7 +425,7 @@ jobs:
       run: echo "componentspath=Build Components" >> $GITHUB_ENV
     
     - name: Run Pyzule
-      run: pyzule -i ${{ env.spotifyEXTpath }} -o ${{ env.componentspath }}/SpotifyPatched.ipa -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f ${{ env.sposifyfix }} ${{ env.sposify }} ${{ env.orion }} ${{ env.swiftprotobuf }} ${{ env.eevee-arm }} -u
+      run: pyzule -i "${{ env.spotifyEXTpath }}" -o "${{ env.componentspath }}/SpotifyPatched.ipa" -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u
 
     - name: Upload SpotifyPatched.ipa to VirusTotal
       if: ${{ env.VIRUSTOTALKEY }}
