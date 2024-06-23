@@ -497,29 +497,22 @@ jobs:
         if [ ! -z "${{ secrets.VIRUSTOTALKEY }}" ]; then
           echo "<details>" >> changelog.txt
           echo "<summary>Version Details & VirusTotal Results</summary>" >> changelog.txt
-          echo "<p>Spotify Version: v${{ env.VANILLASPOTIFYVERSION }}</p>" >> changelog.txt
-          echo "<p><a href='${{ env.VTVANILLASPOTIFY }}'>Vanilla Spotify VirusTotal</a></p>" >> changelog.txt
-          echo "<br>" >> changelog.txt
-          echo "<p>EeveeSpotify Version: Swift ${{ env.REALEEVEEVERSION }}</p>" >> changelog.txt
-          echo "<p><a href='${{ env.VTEEVEE }}'>EeveeSpotify .deb VirusTotal</a></p>" >> changelog.txt
-          echo "<br>" >> changelog.txt
-          echo "<p>Sposify v${{ env.SPOSIFYVERSION }}</p>" >> changelog.txt
-          echo "<p><a href='${{ env.VTSPOSIFY }}'>Sposify VirusTotal</a></p>" >> changelog.txt
-          echo "<br>" >> changelog.txt
-          echo "<p>OpenSpotifySafariExtension Commit: ${{ env.EXTCOMMIT }}</p>" >> changelog.txt
-          echo "<p><a href='${{ env.VTEXT }}'>OpenSpotifySafariExtension Repo Compressed .zip VirusTotal</a></p>" >> changelog.txt
-          echo "<br>" >> changelog.txt
-          echo "<p>Sposify Fix v${{ env.SPOSIFYFIXVERSION }}</p>" >> changelog.txt
-          echo "<p><a href='${{ env.VTSPOSIFYFIX }}'>Sposify Fix VirusTotal</a></p>" >> changelog.txt
-          echo "<br>" >> changelog.txt
-          echo "<p>Orion Runtime (iOS 14 - 16) Version: ${{ env.ORIONVERSION }}</p>" >> changelog.txt
-          echo "<p><a href='${{ env.VTORION }}'>Orion Runtime (iOS 14 - 16) .deb VirusTotal</a></p>" >> changelog.txt
-          echo "<br>" >> changelog.txt
-          echo "<p>SwiftProtobuf Framework Version: ${{ env.SWIFTPROTOBUFVERSION }}</p>" >> changelog.txt
-          echo "<p><a href='${{ env.VTSWIFTPROTOBUF }}'>SwiftProtobuf Framework .deb VirusTotal</a></p>" >> changelog.txt
-          echo "<br>" >> changelog.txt
-          echo "<p>SpotC++ Version: v${{ env.CHANGEVERSION }}</p>" >> changelog.txt
-          echo "<p><a href='${{ env.VTSPOTC }}'>SpotC++ VirusTotal</a></p>" >> changelog.txt
+          echo "<p>Spotify Version: v${{ env.VANILLASPOTIFYVERSION }}" >> changelog.txt
+          echo "<br>Vanilla Spotify VirusTotal</p>" >> changelog.txt
+          echo "<p>EeveeSpotify Version: Swift ${{ env.REALEEVEEVERSION }}" >> changelog.txt
+          echo "<br><a href='${{ env.VTEEVEE }}'>EeveeSpotify .deb VirusTotal</a></p>" >> changelog.txt
+          echo "<p>Sposify v${{ env.SPOSIFYVERSION }}" >> changelog.txt
+          echo "<br><a href='${{ env.VTSPOSIFY }}'>Sposify VirusTotal</a></p>" >> changelog.txt
+          echo "<p>OpenSpotifySafariExtension Commit: ${{ env.EXTCOMMIT }}" >> changelog.txt
+          echo "<br><a href='${{ env.VTEXT }}'>OpenSpotifySafariExtension Repo Compressed .zip VirusTotal</a></p>" >> changelog.txt
+          echo "<p>Sposify Fix v${{ env.SPOSIFYFIXVERSION }}" >> changelog.txt
+          echo "<br><a href='${{ env.VTSPOSIFYFIX }}'>Sposify Fix VirusTotal</a></p>" >> changelog.txt
+          echo "<p>Orion Runtime (iOS 14 - 16) Version: ${{ env.ORIONVERSION }}" >> changelog.txt
+          echo "<br><a href='${{ env.VTORION }}'>Orion Runtime (iOS 14 - 16) .deb VirusTotal</a></p>" >> changelog.txt
+          echo "<p>SwiftProtobuf Framework Version: ${{ env.SWIFTPROTOBUFVERSION }}" >> changelog.txt
+          echo "<br><a href='${{ env.VTSWIFTPROTOBUF }}'>SwiftProtobuf Framework .deb VirusTotal</a></p>" >> changelog.txt
+          echo "<p>SpotC++ Version: v${{ env.CHANGEVERSION }}" >> changelog.txt
+          echo "<br><a href='${{ env.VTSPOTC }}'>SpotC++ VirusTotal</a></p>" >> changelog.txt
           echo "<br>" >> changelog.txt
           echo "</details>" >> changelog.txt
         fi
