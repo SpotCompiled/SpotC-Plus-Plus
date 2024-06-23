@@ -360,7 +360,7 @@ jobs:
     
     - name: Copy OpenSpotifySafariExtension.appex to Build Components
       run: |
-        cp OpenSpotifySafariExtension/OpenSpotifySafariExtension.appex "Build Components/"
+        cp -R OpenSpotifySafariExtension/OpenSpotifySafariExtension.appex "Build Components/"
         echo "EXTCOMMIT=$(git -C OpenSpotifySafariExtension rev-parse --short HEAD)" >> $GITHUB_ENV
     
     - name: Compress OpenSpotifySafariExtension to zip
