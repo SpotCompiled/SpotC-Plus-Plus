@@ -40,29 +40,11 @@ jobs:
       run: bash -c "$(curl https://raw.githubusercontent.com/asdfzxcvbn/pyzule/main/install-pyzule.sh)"
 
     - name: Set EEVEEVERSION if not provided
-      if: ${{ github.event.inputs.EEVEEVERSION == '' || github.event.inputs.EEVEEVERSION == null }}
+      if: ${{ github.event.inputs.EEVEEVERSION == '' }}
       run: |
         echo "EEVEEVERSION not provided, fetching latest release tag..."
-        max_attempts=5
-        attempt=0
-        REALEEVEEVERSION="null"
-        while [ $attempt -lt $max_attempts ] && ([ -z "$REALEEVEEVERSION" ] || [ "$REALEEVEEVERSION" == "null" ]); do
-          attempt=$((attempt+1))
-          echo "Attempt $attempt to fetch latest release tag..."
-          REALEEVEEVERSION=$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest" | jq -r '.tag_name')
-          if [ -n "$REALEEVEEVERSION" ] && [ "$REALEEVEEVERSION" != "null" ]; then
-            break
-          fi
-          echo "Failed to fetch latest release tag, retrying in 5 seconds..."
-          sleep 5  # Wait for a short period before retrying
-        done
-    
-        if [ -z "$REALEEVEEVERSION" ] || [ "$REALEEVEEVERSION" == "null" ]; then
-          echo "Failed to fetch the latest release tag after $max_attempts attempts. Exiting with error."
-          exit 1
-        fi
-    
-        echo "Successfully fetched latest release tag: $REALEEVEEVERSION"
+        REALEEVEEVERSION=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest | jq -r .tag_name)
+        echo "Latest release tag: $REALEEVEEVERSION"
         echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
 
     - name: Set RealEeveeVersion if tag provided
