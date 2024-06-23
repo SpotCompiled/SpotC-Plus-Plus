@@ -360,7 +360,7 @@ jobs:
     
     - name: Copy OpenSpotifySafariExtension.appex to Build Components
       run: |
-        cp -R OpenSpotifySafariExtension/OpenSpotifySafariExtension.appex "Build Components/OpenSpotifySafariExtension.appx"
+        cp -R OpenSpotifySafariExtension/OpenSpotifySafariExtension.appex "Build Components/OpenSpotifySafariExtension.appex"
         echo "EXTCOMMIT=$(git -C OpenSpotifySafariExtension rev-parse --short HEAD)" >> $GITHUB_ENV
     
     - name: Compress OpenSpotifySafariExtension to zip
@@ -385,23 +385,27 @@ jobs:
     - name: Duplicate and unzip Spotify.ipa
       run: |
         cp "${{ env.spotifypath }}" "Build Components/SpotifyAnylises.zip"
-        unzip "Build Components/SpotifyAnylises.zip"
+        unzip "Build Components/SpotifyAnylises.zip" -d "Build Components"
     
     - name: Extract info.plist from Spotify
       run: |
-        cp Payload/Spotify.app/Info.plist "Build Components/Info.plist"
-        echo "VANILLASPOTIFYVERSION=$(defaults read "Build Components/Info.plist" CFBundleVersion)" >> $GITHUB_ENV
+        cd "Build Components"
+        cp Payload/Spotify.app/Info.plist "Info.plist"
+        echo "VANILLASPOTIFYVERSION=$(/usr/libexec/PlistBuddy -c "Print :SpotifyVersionShort" Info.plist)" >> $GITHUB_ENV
     
     - name: Modify Spotify with OpenSpotifySafariExtension.appex
       run: |
-        cp -R "Build Components/OpenSpotifySafariExtension.appex" Payload/Spotify.app/PlugIns/
-        zip -r SpotifyEXT.zip Payload
-        cd "Build Components/"
-        mv SpotifyEXT.zip SpotifyEXT.ipa
+        cd "Build Components"
+        cp -R "OpenSpotifySafariExtension.appex" Payload/Spotify.app/PlugIns/
+        ditto -c -k --sequesterRsrc --keepParent "Payload" "SpotifyEXT.zip"
         echo "spotifyEXTpath=Build Components/SpotifyEXT.ipa" >> $GITHUB_ENV
+        
+        #Clean Up
         rm -rf Payload
         rm -f SpotifyAnylises.zip
         rm -f Info.plist
+        rm -f OpenSpotifySafariExtension.zip
+        rm -f OpenSpotifySafariExtension.appex
     
     - name: Set Change Version
       id: set-change-version
