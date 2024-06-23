@@ -95,30 +95,6 @@ jobs:
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTVANILLASPOTIFY=${{ steps.vt-spotify.outputs.analysis }}" >> $GITHUB_ENV
 
-    - name: Download EeveeSpotify .deb files
-      run: |
-        eevee_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and endswith("iphoneos-arm.deb")).browser_download_url')
-        echo "Downloading From: $eevee_asset"
-        # Download the file using curl
-        curl -LJO "$eevee_asset"
-        downloaded_file=$(ls -t | head -n1)
-        mv "$downloaded_file" "Build Components/"
-        echo "eevee-arm=Build Components/$downloaded_file" >> $GITHUB_ENV
-      env:
-        REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
-    
-    - name: Upload EeveeSpotify to VirusTotal
-      if: ${{ env.VIRUSTOTALKEY }}
-      uses: crazy-max/ghaction-virustotal@v4
-      id: vt-eevee
-      with:
-        files: "${{ env.eevee-arm }}"
-        vt_api_key: ${{ env.VIRUSTOTALKEY }}
-        
-    - name: Set VirusTotal Analysis URL for EeveeSpotify
-      if: ${{ env.VIRUSTOTALKEY }}
-      run: echo "VTEEVEE=${{ steps.vt-eevee.outputs.analysis }}" >> $GITHUB_ENV
-
     - name: Download SwiftProtobuf .deb file
       run: |
         protobuf_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
@@ -354,6 +330,30 @@ jobs:
     - name: Set VirusTotal Analysis URL for SposifyFix
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTSPOSIFYFIX=${{ steps.vt-sposifyfix.outputs.analysis }}" >> $GITHUB_ENV
+
+    - name: Download EeveeSpotify .deb files
+      run: |
+        eevee_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and endswith("iphoneos-arm.deb")).browser_download_url')
+        echo "Downloading From: $eevee_asset"
+        # Download the file using curl
+        curl -LJO "$eevee_asset"
+        downloaded_file=$(ls -t | head -n1)
+        mv "$downloaded_file" "Build Components/"
+        echo "eevee-arm=Build Components/$downloaded_file" >> $GITHUB_ENV
+      env:
+        REALEEVEEVERSION: ${{ env.REALEEVEEVERSION }}
+    
+    - name: Upload EeveeSpotify to VirusTotal
+      if: ${{ env.VIRUSTOTALKEY }}
+      uses: crazy-max/ghaction-virustotal@v4
+      id: vt-eevee
+      with:
+        files: "${{ env.eevee-arm }}"
+        vt_api_key: ${{ env.VIRUSTOTALKEY }}
+        
+    - name: Set VirusTotal Analysis URL for EeveeSpotify
+      if: ${{ env.VIRUSTOTALKEY }}
+      run: echo "VTEEVEE=${{ steps.vt-eevee.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Clone OpenSpotifySafariExtension
       run: git clone https://github.com/whoeevee/OpenSpotifySafariExtension
