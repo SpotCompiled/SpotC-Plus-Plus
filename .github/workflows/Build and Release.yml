@@ -392,7 +392,7 @@ jobs:
     
     - name: Modify Spotify with OpenSpotifySafariExtension.appex
       run: |
-        cp "Build Components/OpenSpotifySafariExtension.appex" Payload/Spotify.app/PlugIns/
+        cp -R "Build Components/OpenSpotifySafariExtension.appex" Payload/Spotify.app/PlugIns/
         zip -r SpotifyEXT.zip Payload
         cd ""Build Components/"
         mv SpotifyEXT.zip SpotifyEXT.ipa
