@@ -446,58 +446,63 @@ jobs:
 
     - name: Extract and Prepare VirusTotal Links
       run: |
-        VTSPOTC=$(echo "$VTSPOTC" | awk -F'=' '{print $2}')
+        VTSPOTC=$(echo "$VTSPOTC" | sed 's/.*\(https:\/\/.*\)/\1/')
         echo "SpotC++ VT: $VTSPOTC"
         echo "VTSPOTC=$VTSPOTC" >> $GITHUB_ENV
-        VTVANILLASPOTIFY=$(echo "$VTVANILLASPOTIFY" | awk -F'=' '{print $2}')
+        VTVANILLASPOTIFY=$(echo "$VTVANILLASPOTIFY" | sed 's/.*\(https:\/\/.*\)/\1/')
         echo "Vanilla Spotify VT: $VTVANILLASPOTIFY"
         echo "VTVANILLASPOTIFY=$VTVANILLASPOTIFY" >> $GITHUB_ENV
-        VTEEVEE=$(echo "$VTEEVEE" | awk -F'=' '{print $2}')
+        VTEEVEE=$(echo "$VTEEVEE" | sed 's/.*\(https:\/\/.*\)/\1/')
         echo "EeveeSpotify VT: $VTEEVEE"
         echo "VTEEVEE=$VTEEVEE" >> $GITHUB_ENV
-        VTSPOSIFY=$(echo "$VTSPOSIFY" | awk -F'=' '{print $2}')
+        VTSPOSIFY=$(echo "$VTSPOSIFY" | sed 's/.*\(https:\/\/.*\)/\1/')
         echo "Sposify VT: $VTSPOSIFY"
         echo "VTSPOSIFY=$VTSPOSIFY" >> $GITHUB_ENV
-        VTEXT=$(echo "$VTEXT" | awk -F'=' '{print $2}')
+        VTEXT=$(echo "$VTEXT" | sed 's/.*\(https:\/\/.*\)/\1/')
         echo "OpenSpotifySafariExtension VT: $VTEXT"
         echo "VTEXT=$VTEXT" >> $GITHUB_ENV
-        VTSPOSIFYFIX=$(echo "$VTSPOSIFYFIX" | awk -F'=' '{print $2}')
+        VTSPOSIFYFIX=$(echo "$VTSPOSIFYFIX" | sed 's/.*\(https:\/\/.*\)/\1/')
         echo "SposifyFix VT: $VTSPOSIFYFIX"
         echo "VTSPOSIFYFIX=$VTSPOSIFYFIX" >> $GITHUB_ENV
-        VTORION=$(echo "$VTORION" | awk -F'=' '{print $2}')
+        VTORION=$(echo "$VTORION" | sed 's/.*\(https:\/\/.*\)/\1/')
         echo "Orion VT: $VTORION"
         echo "VTORION=$VTORION" >> $GITHUB_ENV
-        VTSWIFTPROTOBUF=$(echo "$VTSWIFTPROTOBUF" | awk -F'=' '{print $2}')
+        VTSWIFTPROTOBUF=$(echo "$VTSWIFTPROTOBUF" | sed 's/.*\(https:\/\/.*\)/\1/')
         echo "SwiftProtobuf VT: $VTSWIFTPROTOBUF"
         echo "VTSWIFTPROTOBUF=$VTSWIFTPROTOBUF" >> $GITHUB_ENV
 
     - name: Construct ChangeLog
       run: |
-        echo "CHANGELOG## Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.REALEEVEEVERSION }}" > changelog.txt
-        echo "CHANGELOG\n\n$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.body' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
-        echo "CHANGELOG\n\n- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }}" >> changelog.txt
-        echo "CHANGELOG\n\n***\nVanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment.\nApp .ipa modified and tweaks injected using Pyzule with [the github Action Workflow.](${{ env.WORKFLOWURL }})\n" >> changelog.txt
+        echo "## ChangeLog" > changelog.txt
+        echo "Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.REALEEVEEVERSION }}" > changelog.txt
+        echo "$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.body' | sed -n 's/^\* //p' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
+        echo "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }}" >> changelog.txt
+        echo "***" > changelog.txt
+        echo "Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment." > changelog.txt
+        echo "App .ipa modified and tweaks injected using Pyzule with [the github Action Workflow.](${{ env.WORKFLOWURL }})" >> changelog.txt
+        echo ""> changelog.txt
 
         if [ ! -z "${{ secrets.VIRUSTOTALKEY }}" ]; then
           echo "<details>" >> changelog.txt
-          echo "<summary>Version Details & VirusTotal Results</summary><br>" >> changelog.txt
+          echo "<summary>Version Details & VirusTotal Results</summary>" >> changelog.txt
           echo "Spotify Version: v${{ env.VANILLASPOTIFYVERSION }}" >> changelog.txt
-          echo "[Vanilla Spotify VirusTotal](${{ env.VTVANILLASPOTIFY }})<br>" >> changelog.txt
+          echo "[Vanilla Spotify VirusTotal](${{ env.VTVANILLASPOTIFY }})" >> changelog.txt
           echo "EeveeSpotify Version: ${{ env.REALEEVEEVERSION }}" >> changelog.txt
-          echo "[EeveeSpotify .deb VirusTotal](${{ env.VTEEVEE }})<br>" >> changelog.txt
+          echo "[EeveeSpotify .deb VirusTotal](${{ env.VTEEVEE }})" >> changelog.txt
           echo "Sposify v${{ env.SPOSIFYVERSION }}" >> changelog.txt
-          echo "[Sposify VirusTotal](${{ env.VTSPOSIFY }})<br>" >> changelog.txt
+          echo "[Sposify VirusTotal](${{ env.VTSPOSIFY }})" >> changelog.txt
           echo "OpenSpotifySafariExtension Commit: ${{ env.EXTCOMMIT }}" >> changelog.txt
-          echo "[OpenSpotifySafariExtension Repo Compressed .zip VirusTotal](${{ env.VTEXT }})<br>" >> changelog.txt
+          echo "[OpenSpotifySafariExtension Repo Compressed .zip VirusTotal](${{ env.VTEXT }})" >> changelog.txt
           echo "Sposify Fix v${{ env.SPOSIFYFIXVERSION }}" >> changelog.txt
-          echo "[Sposify Fix VirusTotal](${{ env.VTSPOSIFYFIX }})<br>" >> changelog.txt
+          echo "[Sposify Fix VirusTotal](${{ env.VTSPOSIFYFIX }})" >> changelog.txt
           echo "Orion Runtime (iOS 14 - 16) v${{ env.ORIONVERSION }}" >> changelog.txt
-          echo "[Orion Runtime (iOS 14 - 16) .deb VirusTotal](${{ env.VTORION }})<br>" >> changelog.txt
+          echo "[Orion Runtime (iOS 14 - 16) .deb VirusTotal](${{ env.VTORION }})" >> changelog.txt
           echo "SwiftProtobuf Framework v${{ env.SWIFTPROTOBUFVERSION }}" >> changelog.txt
-          echo "[SwiftProtobuf Framework .deb VirusTotal](${{ env.VTSWIFTPROTOBUF }})<br>" >> changelog.txt
+          echo "[SwiftProtobuf Framework .deb VirusTotal](${{ env.VTSWIFTPROTOBUF }})" >> changelog.txt
           echo "SpotC++ Version: v${{ env.CHANGEVERSION }}" >> changelog.txt
-          echo "[SpotC++ VirusTotal](${{ env.VTSPOTC }})<br>" >> changelog.txt
-          echo "<br></details>" >> changelog.txt
+          echo "[SpotC++ VirusTotal](${{ env.VTSPOTC }})" >> changelog.txt
+          echo "" >> changelog.txt
+          echo "</details>" >> changelog.txt
         fi
 
     - name: Create Draft Release
