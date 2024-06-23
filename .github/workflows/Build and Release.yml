@@ -53,16 +53,17 @@ jobs:
           if [ -n "$REALEEVEEVERSION" ] && [ "$REALEEVEEVERSION" != "null" ]; then
             break
           fi
-          echo "Failed to fetch latest release tag, retrying..."
+          echo "Failed to fetch latest release tag, retrying in 5 seconds..."
           sleep 5  # Wait for a short period before retrying
         done
     
         if [ -z "$REALEEVEEVERSION" ] || [ "$REALEEVEEVERSION" == "null" ]; then
-          echo "Failed to fetch the latest release tag after $max_attempts attempts.
+          echo "Failed to fetch the latest release tag after $max_attempts attempts. Exiting with error."
+          exit 1
         fi
     
+        echo "Successfully fetched latest release tag: $REALEEVEEVERSION"
         echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
-
 
     - name: Set RealEeveeVersion if tag provided
       if: ${{ env.EEVEEVERSION != '' }}
