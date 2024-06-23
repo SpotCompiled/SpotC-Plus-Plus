@@ -424,8 +424,8 @@ jobs:
           IFS='.' read -r -a version_parts <<< "$version"
           # Increment the patch version component (assuming the version is in format v2.1.3)
           patch=$(( ${version_parts[2]} + 1 ))
-          # Construct the new version string
-          new_version="v${version_parts[0]}.${version_parts[1]}.$patch"
+         # Construct the new version string without the 'v' prefix
+          new_version="${version_parts[0]}.${version_parts[1]}.$patch"
           # Store the new version string in CHANGEVERSION
           CHANGEVERSION="$new_version"
         fi
@@ -486,7 +486,7 @@ jobs:
     - name: Construct ChangeLog
       run: |
         echo "## ChangeLog" > changelog.txt
-        echo "Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.REALEEVEEVERSION }} </br>" >> changelog.txt
+        echo "- Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.REALEEVEEVERSION }} </br>" >> changelog.txt
         echo "$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.body' | sed -n 's/^\* //p' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
         echo "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }} </br>" >> changelog.txt
         echo "***" >> changelog.txt
