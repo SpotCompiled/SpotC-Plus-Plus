@@ -360,7 +360,7 @@ jobs:
     
     - name: Copy OpenSpotifySafariExtension.appex to Build Components
       run: |
-        cp -R OpenSpotifySafariExtension/OpenSpotifySafariExtension.appex "Build Components/OpenSpotifySafariExtension.appex"
+        cp -R OpenSpotifySafariExtension/OpenSpotifySafariExtension.appex "Build Components/OpenSpotifySafariExtension.appx"
         echo "EXTCOMMIT=$(git -C OpenSpotifySafariExtension rev-parse --short HEAD)" >> $GITHUB_ENV
     
     - name: Compress OpenSpotifySafariExtension to zip
@@ -368,7 +368,7 @@ jobs:
         cd OpenSpotifySafariExtension
         echo "Compressing:"
         ls
-        zip -r "Build Components/OpenSpotifySafariExtension.zip"
+        ditto -c -k --sequesterRsrc --keepParent ./ "../Build Components/OpenSpotifySafariExtension.zip"
     
     - name: Upload OpenSpotifySafariExtension to VirusTotal
       if: ${{ env.VIRUSTOTALKEY }}
