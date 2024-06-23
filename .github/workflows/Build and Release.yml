@@ -474,34 +474,34 @@ jobs:
     - name: Construct ChangeLog
       run: |
         echo "## ChangeLog" > changelog.txt
-        echo "Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.REALEEVEEVERSION }}" > changelog.txt
+        echo "Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.REALEEVEEVERSION }} </br>" >> changelog.txt
         echo "$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.body' | sed -n 's/^\* //p' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
-        echo "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }}" >> changelog.txt
-        echo "***" > changelog.txt
-        echo "Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment." > changelog.txt
-        echo "App .ipa modified and tweaks injected using Pyzule with [the github Action Workflow.](${{ env.WORKFLOWURL }})" >> changelog.txt
-        echo ""> changelog.txt
+        echo "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }} </br>" >> changelog.txt
+        echo "***" >> changelog.txt
+        echo "Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment. </br>" >> changelog.txt
+        echo "App .ipa modified and tweaks injected using Pyzule with [the github Action Workflow.](${{ env.WORKFLOWURL }}) </br>" >> changelog.txt
+        echo "" >> changelog.txt
 
         if [ ! -z "${{ secrets.VIRUSTOTALKEY }}" ]; then
           echo "<details>" >> changelog.txt
           echo "<summary>Version Details & VirusTotal Results</summary>" >> changelog.txt
-          echo "Spotify Version: v${{ env.VANILLASPOTIFYVERSION }}" >> changelog.txt
-          echo "[Vanilla Spotify VirusTotal](${{ env.VTVANILLASPOTIFY }})" >> changelog.txt
-          echo "EeveeSpotify Version: ${{ env.REALEEVEEVERSION }}" >> changelog.txt
-          echo "[EeveeSpotify .deb VirusTotal](${{ env.VTEEVEE }})" >> changelog.txt
-          echo "Sposify v${{ env.SPOSIFYVERSION }}" >> changelog.txt
-          echo "[Sposify VirusTotal](${{ env.VTSPOSIFY }})" >> changelog.txt
-          echo "OpenSpotifySafariExtension Commit: ${{ env.EXTCOMMIT }}" >> changelog.txt
-          echo "[OpenSpotifySafariExtension Repo Compressed .zip VirusTotal](${{ env.VTEXT }})" >> changelog.txt
-          echo "Sposify Fix v${{ env.SPOSIFYFIXVERSION }}" >> changelog.txt
-          echo "[Sposify Fix VirusTotal](${{ env.VTSPOSIFYFIX }})" >> changelog.txt
-          echo "Orion Runtime (iOS 14 - 16) v${{ env.ORIONVERSION }}" >> changelog.txt
-          echo "[Orion Runtime (iOS 14 - 16) .deb VirusTotal](${{ env.VTORION }})" >> changelog.txt
-          echo "SwiftProtobuf Framework v${{ env.SWIFTPROTOBUFVERSION }}" >> changelog.txt
-          echo "[SwiftProtobuf Framework .deb VirusTotal](${{ env.VTSWIFTPROTOBUF }})" >> changelog.txt
-          echo "SpotC++ Version: v${{ env.CHANGEVERSION }}" >> changelog.txt
-          echo "[SpotC++ VirusTotal](${{ env.VTSPOTC }})" >> changelog.txt
-          echo "" >> changelog.txt
+          echo "Spotify Version: v${{ env.VANILLASPOTIFYVERSION }} </br>" >> changelog.txt
+          echo "[Vanilla Spotify VirusTotal](${{ env.VTVANILLASPOTIFY }}) </br>" >> changelog.txt
+          echo "EeveeSpotify Version: ${{ env.REALEEVEEVERSION }} </br>" >> changelog.txt
+          echo "[EeveeSpotify .deb VirusTotal](${{ env.VTEEVEE }}) </br>" >> changelog.txt
+          echo "Sposify v${{ env.SPOSIFYVERSION }} </br>" >> changelog.txt
+          echo "[Sposify VirusTotal](${{ env.VTSPOSIFY }}) </br>" >> changelog.txt
+          echo "OpenSpotifySafariExtension Commit: ${{ env.EXTCOMMIT }} </br>" >> changelog.txt
+          echo "[OpenSpotifySafariExtension Repo Compressed .zip VirusTotal](${{ env.VTEXT }}) </br>" >> changelog.txt
+          echo "Sposify Fix v${{ env.SPOSIFYFIXVERSION }} </br>" >> changelog.txt
+          echo "[Sposify Fix VirusTotal](${{ env.VTSPOSIFYFIX }}) </br>" >> changelog.txt
+          echo "Orion Runtime (iOS 14 - 16) v${{ env.ORIONVERSION }} </br>" >> changelog.txt
+          echo "[Orion Runtime (iOS 14 - 16) .deb VirusTotal](${{ env.VTORION }}) </br>" >> changelog.txt
+          echo "SwiftProtobuf Framework v${{ env.SWIFTPROTOBUFVERSION }} </br>" >> changelog.txt
+          echo "[SwiftProtobuf Framework .deb VirusTotal](${{ env.VTSWIFTPROTOBUF }}) </br>" >> changelog.txt
+          echo "SpotC++ Version: v${{ env.CHANGEVERSION }} </br>" >> changelog.txt
+          echo "[SpotC++ VirusTotal](${{ env.VTSPOTC }}) </br>" >> changelog.txt
+          echo "<br>" >> changelog.txt
           echo "</details>" >> changelog.txt
         fi
 
