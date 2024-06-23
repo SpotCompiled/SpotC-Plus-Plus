@@ -411,7 +411,7 @@ jobs:
     
     - name: Set Change Version
       id: set-change-version
-      
+      run: |
         CHANGEVERSION="${{ github.event.inputs.CHANGEVERSION }}"
         if [ -z "$CHANGEVERSION" ]; then
           latest_tag=$(curl -s https://api.github.com/repos/SpotCompiled/SpotC-Plus-Plus/releases/latest | jq -r .tag_name)
@@ -424,7 +424,8 @@ jobs:
         echo "CHANGEVERSION=$CHANGEVERSION" >> $GITHUB_ENV
 
     - name: Set Components Path
-    
+      run: echo "componentspath=Build Components" >> $GITHUB_ENV
+      
     - name: Run Pyzule
       run: |
         pyzule -i "${{ env.spotifyEXTpath }}" -o "${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u
