@@ -278,7 +278,7 @@ jobs:
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-sposify
       with:
-        files: "Build Components/sposify"
+        files: "${{ env.sposify }}"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for Sposify
