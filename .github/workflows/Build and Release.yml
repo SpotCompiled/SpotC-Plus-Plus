@@ -405,7 +405,7 @@ jobs:
         rm -f SpotifyAnylises.zip
         rm -f Info.plist
         rm -f OpenSpotifySafariExtension.zip
-        rm -f OpenSpotifySafariExtension.appex
+        rm -rf OpenSpotifySafariExtension.appex
     
     - name: Set Change Version
       id: set-change-version
