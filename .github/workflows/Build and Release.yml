@@ -497,9 +497,10 @@ jobs:
         if [ ! -z "${{ secrets.VIRUSTOTALKEY }}" ]; then
           echo "<details>" >> changelog.txt
           echo "<summary>Version Details & VirusTotal Results</summary>" >> changelog.txt
+          echo "<br>" >> changelog.txt
           echo "<p>Spotify Version: v${{ env.VANILLASPOTIFYVERSION }}" >> changelog.txt
-          echo "<br>Vanilla Spotify VirusTotal</p>" >> changelog.txt
-          echo "<p>EeveeSpotify Version: Swift ${{ env.REALEEVEEVERSION }}" >> changelog.txt
+          echo "<br><a href='${{ env.VTVANILLASPOTIFY }}'>Vanilla Spotify VirusTotal</a></p>" >> changelog.txt
+          echo "<p>EeveeSpotify Version: ${{ env.REALEEVEEVERSION }}" >> changelog.txt
           echo "<br><a href='${{ env.VTEEVEE }}'>EeveeSpotify .deb VirusTotal</a></p>" >> changelog.txt
           echo "<p>Sposify v${{ env.SPOSIFYVERSION }}" >> changelog.txt
           echo "<br><a href='${{ env.VTSPOSIFY }}'>Sposify VirusTotal</a></p>" >> changelog.txt
