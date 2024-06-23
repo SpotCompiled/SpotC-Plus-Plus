@@ -214,15 +214,6 @@ jobs:
     - name: Set VirusTotal Analysis URL for Orion
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTORION=${{ steps.vt-orion.outputs.analysis }}" >> $GITHUB_ENV
-
-    - name: Download Sposify .deb file from Dynastic repo
-      run: |
-        sposify_url=$(curl -s https://repo.dynastic.co/api/Packages | jq -r '.[] | select(.package=="com.spos").version')
-        sposify_version=$(echo $sposify_url | jq -r .version)
-        sposify_download_url=$(echo $sposify_url | jq -r .url)
-        curl -L "$sposify_download_url" -o "Build Components/sposify"
-        echo "sposify=Build Components/sposify" >> $GITHUB_ENV
-        echo "SPOSIFYVERSION=$sposify_version" >> $GITHUB_ENV
     
     - name: Download and process Sposify
       run: |
