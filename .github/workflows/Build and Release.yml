@@ -411,7 +411,7 @@ jobs:
     
     - name: Set Change Version
       id: set-change-version
-      run: |
+      
         CHANGEVERSION="${{ github.event.inputs.CHANGEVERSION }}"
         if [ -z "$CHANGEVERSION" ]; then
           latest_tag=$(curl -s https://api.github.com/repos/SpotCompiled/SpotC-Plus-Plus/releases/latest | jq -r .tag_name)
@@ -424,60 +424,63 @@ jobs:
         echo "CHANGEVERSION=$CHANGEVERSION" >> $GITHUB_ENV
 
     - name: Set Components Path
-      run: echo "componentspath=Build Components" >> $GITHUB_ENV
     
     - name: Run Pyzule
-      run: pyzule -i "${{ env.spotifyEXTpath }}" -o "${{ env.componentspath }}/SpotifyPatched.ipa" -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u
+      run: |
+        pyzule -i "${{ env.spotifyEXTpath }}" -o "${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u
+        echo "patchedspotify=${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" >> $GITHUB_ENV
 
     - name: Upload SpotifyPatched.ipa to VirusTotal
       if: ${{ env.VIRUSTOTALKEY }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-spotc
       with:
-        files: "${{ env.componentspath }}/SpotifyPatched.ipa"
+        files: "${{ env.patchedspotify }}"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for SpotC++
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTSPOTC=${{ steps.vt-spotc.outputs.analysis }}" >> $GITHUB_ENV
 
-    - name: Create GitHub Release
-      uses: ncipollo/release-action@v1
+
+    - name: Construct ChangeLog
+      run: |
+        echo "CHANGELOG## Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to $env.REALEEVEEVERSION" > changelog.txt
+        echo "CHANGELOG\n\n$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/$env.REALEEVEEVERSION | jq -r '.body' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
+        echo "CHANGELOG\n\n- Updated Spotify to version $env.VANILLASPOTIFYVERSION" >> changelog.txt
+        echo "CHANGELOG\n\n***\nVanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment.\nApp .ipa modified and tweaks injected using Pyzule with the github Action Workflow.\n" >> changelog.txt
+
+        if [ ! -z "${{ secrets.VIRUSTOTALKEY }}" ]; then
+          echo "<details>" >> changelog.txt
+          echo "<summary>Version Details & VirusTotal Results</summary><br>" >> changelog.txt
+          echo "Spotify Version: v$env.VANILLASPOTIFYVERSION" >> changelog.txt
+          echo "[Vanilla Spotify VirusTotal]($env.VTVANILLASPOTIFY)<br>" >> changelog.txt
+          echo "EeveeSpotify Version: $env.REALEEVEEVERSION" >> changelog.txt
+          echo "[EeveeSpotify .deb VirusTotal]()<br>" >> changelog.txt
+          echo "Sposify v$env.SPOSIFYVERSION" >> changelog.txt
+          echo "[Sposify VirusTotal]()<br>" >> changelog.txt
+          echo "OpenSpotifySafariExtension Commit: $env.EXTCOMMIT" >> changelog.txt
+          echo "[OpenSpotifySafariExtension Repo Compressed .zip VirusTotal]()<br>" >> changelog.txt
+          echo "Sposify Fix v$env.SPOSIFYFIXVERSION" >> changelog.txt
+          echo "[Sposify Fix VirusTotal]()<br>" >> changelog.txt
+          echo "Orion Runtime (iOS 14 - 16) v$env.ORIONVERSION" >> changelog.txt
+          echo "[Orion Runtime (iOS 14 - 16) .deb VirusTotal]()<br>" >> changelog.txt
+          echo "SwiftProtobuf Framework v$env.SWIFTPROTOBUFVERSION" >> changelog.txt
+          echo "[SwiftProtobuf Framework .deb VirusTotal]()<br>" >> changelog.txt
+          echo "SpotC++ Version: v$env.CHANGEVERSION" >> changelog.txt
+          echo "[SpotC++ VirusTotal]()<br>" >> changelog.txt
+          echo "<br></details>" >> changelog.txt
+        fi
+
+    - name: Create Draft Release
+      uses: softprops/action-gh-release@v2
       with:
-        tag: "v${{ env.CHANGEVERSION }}"
+        tag_name: "v${{ env.CHANGEVERSION }}"
         name: "SpotC++ v${{ env.CHANGEVERSION }}"
         draft: true
-        files: ${{ env.componentspath }}/SpotifyPatched.ipa
-        file_glob: true
-        body: |
-          ## ChangeLog
-          - Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.REALEEVEEVERSION }}
-          $(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.body' | sed 's/^/- (EeveeSpotify) /')
-          - Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }}
-          ***
-          Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment.
-          App .ipa modified and tweaks injected using Pyzule with the github Action Workflow.
+        body_path: changelog.txt
+        files: "${{ env.patchedspotify }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
 
-          $(if [ -n "${{ secrets.VIRUSTOTALKEY }}" ]; then
-          echo "<details>
-          <summary>Version Details & VirusTotal Results</summary><br>
-
-          Spotify Version: v${{ env.VANILLASPOTIFYVERSION }}
-          [Vanilla Spotify VirusTotal](${{ env.VTVANILLASPOTIFY }})<br>
-          EeveeSpotify Version: ${{ env.REALEEVEEVERSION }}
-          [EeveeSpotify .deb VirusTotal](${{ env.VTEEVEE }})<br>
-          Sposify v${{ env.SPOSIFYVERSION }}
-          [Sposify VirusTotal](${{ env.VTSPOSIFY }})<br>
-          OpenSpotifySafariExtension Commit: ${{ env.EXTCOMMIT }}
-          [OpenSpotifySafariExtension Repo Compressed .zip VirusTotal](${{ env.VTEXT }})<br>
-          Sposify Fix v${{ env.SPOSIFYFIXVERSION }}
-          [Sposify Fix VirusTotal](${{ env.VTSPOSIFYFIX }})<br>
-          Orion Runtime (iOS 14 - 16) v${{ env.ORIONVERSION }}
-          [Orion Runtime (iOS 14 - 16) .deb VirusTotal](${{ env.VTORION }})<br>
-          SwiftProtobuf Framework v${{ env.SWIFTPROTOBUFVERSION }}
-          [SwiftProtobuf Framework .deb VirusTotal](${{ env.VTSWIFTPROTOBUF }})<br>
-          SpotC++ Version: v${{ env.CHANGEVERSION }}
-          [SpotC++ VirusTotal](${{ env.VTSPOTC }})
-
-          <br>
-          </details>"; fi)
