@@ -399,7 +399,7 @@ jobs:
       run: |
         cd "Build Components"
         cp -R "OpenSpotifySafariExtension.appex" Payload/Spotify.app/PlugIns/
-        ditto -c -k --sequesterRsrc --keepParent "Payload" "SpotifyEXT.zip"
+        ditto -c -k --sequesterRsrc --keepParent "Payload" "SpotifyEXT.ipa"
         echo "spotifyEXTpath=Build Components/SpotifyEXT.ipa" >> $GITHUB_ENV
         
         #Clean Up
