@@ -413,17 +413,26 @@ jobs:
     - name: Set Change Version
       id: set-change-version
       run: |
+        # Retrieve the current CHANGEVERSION input from GitHub Actions
         CHANGEVERSION="${{ github.event.inputs.CHANGEVERSION }}"
+        # If CHANGEVERSION is not provided, fetch the latest tag from GitHub API
         if [ -z "$CHANGEVERSION" ]; then
           latest_tag=$(curl -s https://api.github.com/repos/SpotCompiled/SpotC-Plus-Plus/releases/latest | jq -r .tag_name)
-          base_version=${latest_tag#v}
-          IFS='.' read -ra ADDR <<< "$base_version"
-          last_number=${ADDR[2]}
-          new_last_number=$((last_number + 1))
-          CHANGEVERSION="${ADDR[0]}.${ADDR[1]}.$new_last_number"
+          # Extract the version number without the 'v' prefix
+          version=${latest_tag#v}
+          # Split the version number into major, minor, and patch components
+          IFS='.' read -r -a version_parts <<< "$version"
+          # Increment the patch version component (assuming the version is in format v2.1.3)
+          patch=$(( ${version_parts[2]} + 1 ))
+          # Construct the new version string
+          new_version="v${version_parts[0]}.${version_parts[1]}.$patch"
+          # Store the new version string in CHANGEVERSION
+          CHANGEVERSION="$new_version"
         fi
+        # Store the final CHANGEVERSION in GitHub environment variable
         echo "CHANGEVERSION=$CHANGEVERSION" >> $GITHUB_ENV
         echo "Using ChangeVersion: $CHANGEVERSION"
+
 
     - name: Set Components Path
       run: echo "componentspath=Build Components" >> $GITHUB_ENV
@@ -490,18 +499,25 @@ jobs:
           echo "<summary>Version Details & VirusTotal Results</summary>" >> changelog.txt
           echo "<p>Spotify Version: v${{ env.VANILLASPOTIFYVERSION }}</p>" >> changelog.txt
           echo "<p><a href='${{ env.VTVANILLASPOTIFY }}'>Vanilla Spotify VirusTotal</a></p>" >> changelog.txt
-          echo "<p>EeveeSpotify Version: ${{ env.REALEEVEEVERSION }}</p>" >> changelog.txt
+          echo "<br>" >> changelog.txt
+          echo "<p>EeveeSpotify Version: Swift ${{ env.REALEEVEEVERSION }}</p>" >> changelog.txt
           echo "<p><a href='${{ env.VTEEVEE }}'>EeveeSpotify .deb VirusTotal</a></p>" >> changelog.txt
+          echo "<br>" >> changelog.txt
           echo "<p>Sposify v${{ env.SPOSIFYVERSION }}</p>" >> changelog.txt
           echo "<p><a href='${{ env.VTSPOSIFY }}'>Sposify VirusTotal</a></p>" >> changelog.txt
+          echo "<br>" >> changelog.txt
           echo "<p>OpenSpotifySafariExtension Commit: ${{ env.EXTCOMMIT }}</p>" >> changelog.txt
           echo "<p><a href='${{ env.VTEXT }}'>OpenSpotifySafariExtension Repo Compressed .zip VirusTotal</a></p>" >> changelog.txt
+          echo "<br>" >> changelog.txt
           echo "<p>Sposify Fix v${{ env.SPOSIFYFIXVERSION }}</p>" >> changelog.txt
           echo "<p><a href='${{ env.VTSPOSIFYFIX }}'>Sposify Fix VirusTotal</a></p>" >> changelog.txt
-          echo "<p>Orion Runtime (iOS 14 - 16) v${{ env.ORIONVERSION }}</p>" >> changelog.txt
+          echo "<br>" >> changelog.txt
+          echo "<p>Orion Runtime (iOS 14 - 16) Version: ${{ env.ORIONVERSION }}</p>" >> changelog.txt
           echo "<p><a href='${{ env.VTORION }}'>Orion Runtime (iOS 14 - 16) .deb VirusTotal</a></p>" >> changelog.txt
-          echo "<p>SwiftProtobuf Framework v${{ env.SWIFTPROTOBUFVERSION }}</p>" >> changelog.txt
+          echo "<br>" >> changelog.txt
+          echo "<p>SwiftProtobuf Framework Version: ${{ env.SWIFTPROTOBUFVERSION }}</p>" >> changelog.txt
           echo "<p><a href='${{ env.VTSWIFTPROTOBUF }}'>SwiftProtobuf Framework .deb VirusTotal</a></p>" >> changelog.txt
+          echo "<br>" >> changelog.txt
           echo "<p>SpotC++ Version: v${{ env.CHANGEVERSION }}</p>" >> changelog.txt
           echo "<p><a href='${{ env.VTSPOTC }}'>SpotC++ VirusTotal</a></p>" >> changelog.txt
           echo "<br>" >> changelog.txt
