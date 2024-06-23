@@ -366,6 +366,8 @@ jobs:
     - name: Compress OpenSpotifySafariExtension to zip
       run: |
         cd OpenSpotifySafariExtension
+        echo "Compressing:"
+        ls
         zip -r "Build Components/OpenSpotifySafariExtension.zip"
     
     - name: Upload OpenSpotifySafariExtension to VirusTotal
