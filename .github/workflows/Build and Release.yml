@@ -45,26 +45,24 @@ jobs:
         echo "EEVEEVERSION not provided, fetching latest release tag..."
         max_attempts=5
         attempt=0
-        success=false
-        while [ $attempt -lt $max_attempts ]; do
+        REALEEVEEVERSION="null"
+        while [ $attempt -lt $max_attempts ] && ([ -z "$REALEEVEEVERSION" ] || [ "$REALEEVEEVERSION" == "null" ]); do
           attempt=$((attempt+1))
           echo "Attempt $attempt to fetch latest release tag..."
           REALEEVEEVERSION=$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest" | jq -r '.tag_name')
           if [ -n "$REALEEVEEVERSION" ] && [ "$REALEEVEEVERSION" != "null" ]; then
-            success=true
             break
           fi
           echo "Failed to fetch latest release tag, retrying..."
           sleep 5  # Wait for a short period before retrying
         done
     
-        if [ "$success" = true ]; then
-          echo "Successfully fetched latest release tag: $REALEEVEEVERSION"
-        else
-          echo "Failed to fetch the latest release tag after $max_attempts attempts. 
+        if [ -z "$REALEEVEEVERSION" ] || [ "$REALEEVEEVERSION" == "null" ]; then
+          echo "Failed to fetch the latest release tag after $max_attempts attempts.
         fi
     
         echo "REALEEVEEVERSION=$REALEEVEEVERSION" >> $GITHUB_ENV
+
 
     - name: Set RealEeveeVersion if tag provided
       if: ${{ env.EEVEEVERSION != '' }}
