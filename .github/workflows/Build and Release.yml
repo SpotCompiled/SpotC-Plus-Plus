@@ -527,7 +527,6 @@ jobs:
           echo "<br><a href='${{ env.VTSWIFTPROTOBUF }}'>SwiftProtobuf Framework .deb VirusTotal</a></p>" >> changelog.txt
           echo "<p>SpotC++ Version: v${{ env.CHANGEVERSION }}" >> changelog.txt
           echo "<br><a href='${{ env.VTSPOTC }}'>SpotC++ VirusTotal</a></p>" >> changelog.txt
-          echo "<br>" >> changelog.txt
           echo "</details>" >> changelog.txt
         fi
 
