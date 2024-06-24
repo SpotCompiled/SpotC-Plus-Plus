@@ -322,6 +322,11 @@ jobs:
       with:
         files: "${{ env.eevee-arm }}"
         vt_api_key: ${{ env.VIRUSTOTALKEY }}
+
+    - name: Get Eevee release name
+      run: |
+        RELEASE_TITLE=$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }}" | jq -r '.name')
+        echo "EEVEEVERSIONNAME=$RELEASE_TITLE" >> $GITHUB_ENV
         
     - name: Set VirusTotal Analysis URL for EeveeSpotify
       if: ${{ env.VIRUSTOTALKEY }}
@@ -486,9 +491,17 @@ jobs:
     - name: Construct ChangeLog
       run: |
         echo "## ChangeLog" > changelog.txt
-        echo "- Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.REALEEVEEVERSION }} </br>" >> changelog.txt
+        echo "- Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.EEVEEVERSIONNAME }} </br>" >> changelog.txt
         echo "$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.body' | sed -n 's/^\* //p' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
         echo "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }} </br>" >> changelog.txt
+        
+        #Hyperlink mentions of issues:
+        tail -n +2 changelog.txt | sed -E 's/#([0-9]+)/[#\1](https:\/\/github.com\/whoeevee\/EeveeSpotify\/issues\/\1)/g' > temp_changelog.txt
+        head -n 1 changelog.txt > final_changelog.txt
+        cat temp_changelog.txt >> final_changelog.txt
+        mv final_changelog.txt changelog.txt
+        rm temp_changelog.txt
+        
         echo "***" >> changelog.txt
         echo "Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment." >> changelog.txt
         echo "App .ipa modified and tweaks injected using Pyzule with [the github Action Workflow.](${{ env.WORKFLOWURL }}) </br>" >> changelog.txt
@@ -500,7 +513,7 @@ jobs:
           echo "<br>" >> changelog.txt
           echo "<p>Spotify Version: v${{ env.VANILLASPOTIFYVERSION }}" >> changelog.txt
           echo "<br><a href='${{ env.VTVANILLASPOTIFY }}'>Vanilla Spotify VirusTotal</a></p>" >> changelog.txt
-          echo "<p>EeveeSpotify Version: ${{ env.REALEEVEEVERSION }}" >> changelog.txt
+          echo "<p>EeveeSpotify Version: ${{ env.EEVEEVERSIONNAME }}" >> changelog.txt
           echo "<br><a href='${{ env.VTEEVEE }}'>EeveeSpotify .deb VirusTotal</a></p>" >> changelog.txt
           echo "<p>Sposify v${{ env.SPOSIFYVERSION }}" >> changelog.txt
           echo "<br><a href='${{ env.VTSPOSIFY }}'>Sposify VirusTotal</a></p>" >> changelog.txt
