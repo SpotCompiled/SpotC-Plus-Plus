@@ -368,7 +368,7 @@ jobs:
         echo "EXTCOMMIT=$(git -C OpenSpotifySafariExtension rev-parse --short HEAD)"
         echo "EXTCOMMIT=$(git -C OpenSpotifySafariExtension rev-parse --short HEAD)" >> $GITHUB_ENV
         echo "Extensions Commit is: $EXTCOMMIT"
-        echo "OSSEXT='Build Components/OpenSpotifySafariExtension.appex'" >> $GITHUB_ENV
+        echo "OSSEXT=Build Components/OpenSpotifySafariExtension.appex" >> $GITHUB_ENV
     
     - name: Compress OpenSpotifySafariExtension to zip
       run: |
