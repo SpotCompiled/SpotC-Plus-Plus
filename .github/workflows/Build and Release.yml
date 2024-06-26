@@ -33,7 +33,7 @@ jobs:
         echo "Workflow URL is $WORKFLOWURL"
 
     - name: Install Pyzule
-      run: bash -c "$(curl https://raw.githubusercontent.com/asdfzxcvbn/pyzule/main/install-pyzule.sh)"
+      run: bash -c "$(curl https://raw.githubusercontent.com/yodaluca23/pyzule/main/install-pyzule.sh)"
 
     - name: Set EEVEEVERSION if not provided
       if: ${{ github.event.inputs.EEVEEVERSION == '' }}
@@ -437,7 +437,7 @@ jobs:
       
     - name: Run Pyzule
       run: |
-        pyzule -i "${{ env.spotifypath }}" -o "${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.OSSEXT }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u -w
+        pyzule -i "${{ env.spotifypath }}" -o "${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.OSSEXT }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u -w -Nfix
         echo "patchedspotify=${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa"
         echo "patchedspotify=${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" >> $GITHUB_ENV
         echo "Patched Spotify .ipa Located: $patchedspotify"
@@ -497,7 +497,7 @@ jobs:
         
         echo "***" >> changelog.txt
         echo "Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment." >> changelog.txt
-        echo "App .ipa modified and tweaks injected using Pyzule with [the github Action Workflow.](${{ env.WORKFLOWURL }}) </br>" >> changelog.txt
+        echo "App .ipa modified and tweaks injected using my fork of [Pyzule](https://github.com/yodaluca23/pyzule) with [the github Action Workflow.](${{ env.WORKFLOWURL }}) </br>" >> changelog.txt
         echo "" >> changelog.txt
 
         if [ ! -z "${{ secrets.VIRUSTOTALKEY }}" ]; then
