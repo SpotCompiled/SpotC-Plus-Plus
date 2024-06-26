@@ -540,5 +540,104 @@ jobs:
         files: "${{ env.patchedspotify }}"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
 
+    - name: Download AltStore Repo.json
+      run: curl "https://raw.githubusercontent.com/SpotCompiled/SpotC-AltStore-Repo/main/AltStore%20Repo.json" -o ./AltStoreRepo.json
+
+    - name: Calculate SpotC++ Filesize
+      run: |
+        FILE_SIZE=$(stat -f%z "${{ env.patchedspotify }}")
+        echo "SpotC++ File Size: $FILE_SIZE"
+        echo "SPOTCSIZE=$FILE_SIZE" >> $GITHUB_ENV
+
+    - name: Fetch the first bullet point from the EeveeSpotify release changelog
+      id: fetch-changelog
+      run: |
+        BULLET_POINT=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.REALEEVEEVERSION }} | jq -r '.body' | grep -m 1 -o '^\*.*' | sed 's/^\* //' | tr -d '"')
+        echo "BULLET_POINT=$BULLET_POINT" >> $GITHUB_ENV
+
+    - name: Set ALTSTORECHANGELOG environment variable
+      run: |
+        ALTSTORECHANGELOG="Updated EeveeSpotify to ${{ env.EEVEEVERSIONNAME }}, fixed several bugs.\n\n ${{ env.BULLET_POINT }}\n\n More Info:\n https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/tag/v${{ env.CHANGEVERSION }}"
+        echo "ALTSTORECHANGELOG=$ALTSTORECHANGELOG" >> $GITHUB_ENV
+      
+    - name: Update AltStore Repo.json
+      run: |
+        jq --arg CHANGEVERSION "${{ env.CHANGEVERSION }}" \
+           --arg CURRENTDATE "$(date +%Y-%-m-%d)" \
+           --arg SIZE "${{ env.SPOTCSIZE }}" \
+           --arg ALTSTORECHANGELOG "${{ env.ALTSTORECHANGELOG }}" \
+           --arg VANILLASPOTIFYVERSION "${{ env.VANILLASPOTIFYVERSION }}" \
+           --arg EEVEEVERSIONNAME "${{ env.EEVEEVERSIONNAME }}" \
+           --arg SPOSIFYVERSION "${{ env.SPOSIFYVERSION }}" \
+           --arg EXTCOMMIT "${{ env.EXTCOMMIT }}" \
+           --arg SPOSIFYFIXVERSION "${{ env.SPOSIFYFIXVERSION }}" \
+           --arg ORIONVERSION "${{ env.ORIONVERSION }}" \
+           --arg SWIFTPROTOBUFVERSION "${{ env.SWIFTPROTOBUFVERSION }}" \
+           '
+           (.apps[] | select(.name == "SpotC++") | .version) = $CHANGEVERSION |
+           (.apps[] | select(.name == "SpotC++") | .versionDate) = $CURRENTDATE |
+           (.apps[] | select(.name == "SpotC++") | .size) = ($SIZE | tonumber) |
+           (.apps[] | select(.name == "SpotC++") | .changelog) = $ALTSTORECHANGELOG |
+           (.apps[] | select(.name == "SpotC++") | .versionDescription) = $ALTSTORECHANGELOG |
+           (.apps[] | select(.name == "SpotC++") | .downloadURL) = "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION).ipa" |
+           (.apps[] | select(.name == "SpotC++") | .versions) |= [{
+              "version": $CHANGEVERSION,
+              "date": $CURRENTDATE,
+              "localizedDescription": $ALTSTORECHANGELOG,
+              "downloadURL": "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION).ipa",
+              "size": ($SIZE | tonumber),
+              "minOSVersion": "15.0"
+           }] + . |
+           (.apps[] | select(.name == "SpotC++") | .information) = [
+              {
+                  "item": "Spotify",
+                  "version": "v\($VANILLASPOTIFYVERSION)",
+                  "authors": "Spotify AB",
+                  "url": "https://www.spotify.com"
+              },
+              {
+                  "item": "EeveeSpotify",
+                  "version": $EEVEEVERSIONNAME,
+                  "authors": "Whoeevee & Asdfzxcvbn",
+                  "url": "https://github.com/whoeevee/EeveeSpotify"
+              },
+              {
+                  "item": "Sposify",
+                  "version": "v\($SPOSIFYVERSION)",
+                  "authors": "aesthyrica",
+                  "url": "https://repo.dynastic.co/package/com.spos"
+              },
+              {
+                  "item": "OpenSpotifySafariExtension",
+                  "version": "Commit \($EXTCOMMIT)",
+                  "authors": "Whoeevee",
+                  "url": "https://github.com/whoeevee/OpenSpotifySafariExtension"
+              },
+              {
+                  "item": "Sposify Fix",
+                  "version": "v\($SPOSIFYFIXVERSION)",
+                  "authors": "level3tjg",
+                  "url": "https://level3tjg.me/repo/depictions?p=com.level3tjg.sposifyfix"
+              },
+              {
+                  "item": "Orion Runtime",
+                  "version": "v\($ORIONVERSION)",
+                  "authors": "Theos Team",
+                  "url": "https://orion.theos.dev"
+              },
+              {
+                  "item": "SwiftProtobuf Framework",
+                  "version": "v\($SWIFTPROTOBUFVERSION)",
+                  "authors": "Apple Inc.",
+                  "url": "https://github.com/apple/swift-protobuf"
+              }
+           ]
+           ' AltStoreRepo.json > AltStoreRepo_updated.json
+          mv AltStoreRepo_updated.json AltStoreRepo.json
+    
+    - name: Upload updated AltStore Repo.json as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: UpdatedAltStoreRepo
+        path: AltStoreRepo.json
