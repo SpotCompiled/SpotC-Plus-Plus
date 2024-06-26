@@ -368,6 +368,7 @@ jobs:
         echo "EXTCOMMIT=$(git -C OpenSpotifySafariExtension rev-parse --short HEAD)"
         echo "EXTCOMMIT=$(git -C OpenSpotifySafariExtension rev-parse --short HEAD)" >> $GITHUB_ENV
         echo "Extensions Commit is: $EXTCOMMIT"
+        echo "OSSEXT='Build Components/OpenSpotifySafariExtension.appex'" >> $GITHUB_ENV
     
     - name: Compress OpenSpotifySafariExtension to zip
       run: |
@@ -400,21 +401,13 @@ jobs:
         echo "VANILLASPOTIFYVERSION=$(/usr/libexec/PlistBuddy -c "Print :SpotifyVersionShort" Info.plist)"
         echo "VANILLASPOTIFYVERSION=$(/usr/libexec/PlistBuddy -c "Print :SpotifyVersionShort" Info.plist)" >> $GITHUB_ENV
         echo "Vanilla Spotify Version: $VANILLASPOTIFYVERSION"
-    
-    - name: Modify Spotify with OpenSpotifySafariExtension.appex
-      run: |
-        cd "Build Components"
-        cp -R "OpenSpotifySafariExtension.appex" Payload/Spotify.app/PlugIns/
-        ditto -c -k --sequesterRsrc --keepParent "Payload" "SpotifyEXT.ipa"
-        echo "spotifyEXTpath=Build Components/SpotifyEXT.ipa" >> $GITHUB_ENV
-        
+
         #Clean Up
         rm -rf Payload
         rm -f SpotifyAnylises.zip
         rm -f Info.plist
         rm -f OpenSpotifySafariExtension.zip
-        rm -rf OpenSpotifySafariExtension.appex
-    
+        
     - name: Set Change Version
       id: set-change-version
       run: |
@@ -444,7 +437,7 @@ jobs:
       
     - name: Run Pyzule
       run: |
-        pyzule -i "${{ env.spotifyEXTpath }}" -o "${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u -w
+        pyzule -i "${{ env.spotifypath }}" -o "${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.OSSEXT }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u -w
         echo "patchedspotify=${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa"
         echo "patchedspotify=${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" >> $GITHUB_ENV
         echo "Patched Spotify .ipa Located: $patchedspotify"
