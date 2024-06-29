@@ -326,7 +326,7 @@ jobs:
         echo "Workflow ID: $workflow_run_id"
         eevee_asset=$(curl -sL https://api.github.com/repos/whoeevee/EeveeSpotify/actions/runs/$workflow_run_id/artifacts | jq -r '.artifacts[] | select(.name | test("debug|arm64") | not) | .archive_download_url')
         echo "Downloading From: $eevee_asset"
-        curl -LJO "$eevee_asset" -o "eeveespotfiyactionsasset.zip"
+        curl -LJ "$eevee_asset" -o "eeveespotfiyactionsasset.zip"
         # Extract the downloaded zip file
         unzip -q "eeveespotfiyactionsasset.zip" -d extracted_files
         # Find the file you need within the extracted files
