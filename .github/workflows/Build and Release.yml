@@ -31,7 +31,8 @@ jobs:
         echo "EEVEEVERSION=${{ github.event.inputs.EEVEEVERSION }}" >> $GITHUB_ENV
         echo "CHANGEVERSION=${{ github.event.inputs.CHANGEVERSION }}" >> $GITHUB_ENV
         echo "SPOTURL=${{ github.event.inputs.SPOTURL }}" >> $GITHUB_ENV
-
+        echo "VIRUSTOTALKEY=${{ secrets.VIRUSTOTALKEY }}" >> $GITHUB_ENV
+        
     - name: Set Workflow URL
       run: |
         echo "WORKFLOWURL=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
@@ -72,9 +73,6 @@ jobs:
 
     - name: Create Build Components folder
       run: mkdir -p "Build Components"
-
-    - name: Set VirusTotal key as env variable
-      run: echo "VIRUSTOTALKEY=${{ secrets.VIRUSTOTALKEY }}" >> $GITHUB_ENV
 
     - name: Download Spotify IPA
       run: |
@@ -532,7 +530,7 @@ jobs:
         echo "App .ipa modified and tweaks injected using [my fork](https://github.com/yodaluca23/pyzule) of [Pyzule](https://github.com/asdfzxcvbn/pyzule) with [the github Action Workflow.](${{ env.WORKFLOWURL }}) </br>" >> changelog.txt
     
     - name: Construct ChangeLog Pt.4 (Add Version Details & VirusTotal Results)
-      if: ${{ secrets.VIRUSTOTALKEY != '' }}
+      if: ${{ env.VIRUSTOTALKEY != '' }}
       run: |
         echo "<details>" >> changelog.txt
         echo "<summary>Version Details & VirusTotal Results</summary>" >> changelog.txt
