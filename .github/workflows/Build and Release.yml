@@ -327,11 +327,18 @@ jobs:
         workflow_run_id=$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/actions/workflows/build-swift.yml/runs?status=success&per_page=1" | jq -r '.workflow_runs[0].id')
         eevee_asset=$(curl -sL https://api.github.com/repos/whoeevee/EeveeSpotify/actions/runs/$workflow_run_id/artifacts | jq -r '.artifacts[] | select(.name | test("debug|arm64") | not) | .archive_download_url')
         echo "Downloading From: $eevee_asset"
-        # Download the file using curl
-        curl -LJO "$eevee_asset"
-        downloaded_file=$(ls -t | head -n1)
+        curl -LJO "$eevee_asset" -o "eeveespotfiyactionsasset.zip"
+        # Extract the downloaded zip file
+        unzip -q "eeveespotfiyactionsasset.zip" -d extracted_files
+        # Find the file you need within the extracted files
+        downloaded_file=$(find extracted_files -type f -name "*.deb" -print -quit)
+        # Move the found file to the desired directory
         mv "$downloaded_file" "Build Components/"
-        echo "eevee-arm=Build Components/$downloaded_file" >> $GITHUB_ENV
+        # Clean up extracted files
+        rm -rf extracted_files
+        echo "eevee-arm=Build Components/$(basename "$downloaded_file")" >> $GITHUB_ENV
+        echo "eeveeAssetLink=$eevee_asset" >> $GITHUB_ENV
+
     
     - name: Upload EeveeSpotify to VirusTotal
       if: ${{ env.VIRUSTOTALKEY }}
@@ -515,6 +522,9 @@ jobs:
         
         echo "***" >> changelog.txt
         echo "Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment." >> changelog.txt
+        if [[ "${{ github.event.inputs.USEACTIONSEEVEE }}" == "true" ]]; then
+          echo "The EeveeSpotify .deb was taken from the [latest Build workflow](${{ env.eeveeAssetLink }})." >> changelog.txt
+        fi
         echo "App .ipa modified and tweaks injected using my fork of [Pyzule](https://github.com/yodaluca23/pyzule) with [the github Action Workflow.](${{ env.WORKFLOWURL }}) </br>" >> changelog.txt
         echo "" >> changelog.txt
 
