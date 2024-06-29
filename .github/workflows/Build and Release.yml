@@ -325,6 +325,7 @@ jobs:
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' }}
       run: |
         workflow_run_id=$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/actions/workflows/build-swift.yml/runs?status=success&per_page=1" | jq -r '.workflow_runs[0].id')
+        echo "Workflow ID: $workflow_run_id"
         eevee_asset=$(curl -sL https://api.github.com/repos/whoeevee/EeveeSpotify/actions/runs/$workflow_run_id/artifacts | jq -r '.artifacts[] | select(.name | test("debug|arm64") | not) | .archive_download_url')
         echo "Downloading From: $eevee_asset"
         curl -LJO "$eevee_asset" -o "eeveespotfiyactionsasset.zip"
@@ -412,15 +413,14 @@ jobs:
         
     - name: Set VirusTotal Analysis URL for OpenSpotifySafariExtension
       if: ${{ env.VIRUSTOTALKEY }}
-      run: echo "VTEXT=${{ steps.vt-openspotify.outputs.analysis }}" >> $GITHUB_ENV
+      run: |
+        echo "VTEXT=${{ steps.vt-openspotify.outputs.analysis }}" >> $GITHUB_ENV
+        rm -f "Build Components/OpenSpotifySafariExtension.zip"
 
-    - name: Duplicate and unzip Spotify.ipa
+    - name: Read Spotify Version from Vanilla .ipa
       run: |
         cp "${{ env.spotifypath }}" "Build Components/SpotifyAnylises.zip"
         unzip "Build Components/SpotifyAnylises.zip" -d "Build Components"
-    
-    - name: Extract info.plist from Spotify
-      run: |
         cd "Build Components"
         cp Payload/Spotify.app/Info.plist "Info.plist"
         echo "VANILLASPOTIFYVERSION=$(/usr/libexec/PlistBuddy -c "Print :SpotifyVersionShort" Info.plist)"
@@ -431,8 +431,7 @@ jobs:
         rm -rf Payload
         rm -f SpotifyAnylises.zip
         rm -f Info.plist
-        rm -f OpenSpotifySafariExtension.zip
-        
+
     - name: Set Change Version
       id: set-change-version
       run: |
