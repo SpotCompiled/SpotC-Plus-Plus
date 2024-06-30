@@ -10,7 +10,7 @@ on:
         description: 'SpotC++ Version Number'
         required: false
       USEACTIONSEEVEE:
-        description: 'Enable to get the EeveeSpotify .deb from the latest EeveeSpotfiy build action'
+        description: 'Get EeveeSpotify from latest EeveeSpotfiy build action'
         required: true
         default: false
         type: boolean
