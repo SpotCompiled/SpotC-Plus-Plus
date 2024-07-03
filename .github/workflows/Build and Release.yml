@@ -520,8 +520,8 @@ jobs:
     - name: Construct ChangeLog Pt.2 (Add EeveeSpotify Workflow Link)
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' }}
       run: |
-        RUN_ID=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/actions/artifacts/1661889895 | jq -r .workflow_run.id)
-        eeveeUserAssetLink=$(echo "https://api.github.com/repos/whoeevee/EeveeSpotify/actions/artifacts/1661889895/zip" | sed -E "s|https://api.github.com/repos/([^/]+)/([^/]+)/actions/artifacts/([0-9]+)/zip|https://github.com/\1/\2/actions/runs/${RUN_ID}/artifacts/\3|")
+        RUN_ID=$(curl -s ${{ env.eeveeAssetLink }} | jq -r .workflow_run.id)
+        eeveeUserAssetLink=$(echo "${{ env.eeveeAssetLink }}" | sed -E "s|https://api.github.com/repos/([^/]+)/([^/]+)/actions/artifacts/([0-9]+)/zip|https://github.com/\1/\2/actions/runs/${RUN_ID}/artifacts/\3|")
         echo "The EeveeSpotify .deb was taken from the [latest Build workflow](${eeveeUserAssetLink})." >> changelog.txt
     
     - name: Construct ChangeLog Pt.3 (Add App Details and Workflow Link)
