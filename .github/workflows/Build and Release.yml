@@ -37,7 +37,6 @@ jobs:
       run: |
         echo "WORKFLOWURL=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_ENV
         echo "Workflow URL is $WORKFLOWURL"
-
     - name: Install Pyzule
       run: bash -c "$(curl https://raw.githubusercontent.com/yodaluca23/pyzule/main/install-pyzule.sh)"
 
@@ -48,7 +47,6 @@ jobs:
         EEVEETAG=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest | jq -r .tag_name)
         echo "Latest release tag: $EEVEETAG"
         echo "EEVEETAG=$EEVEETAG" >> $GITHUB_ENV
-
     - name: Set EEVEETAG if tag provided
       if: ${{ env.EEVEEVERSION != '' }}
       id: fetch-tags
@@ -65,12 +63,11 @@ jobs:
             exit 0
           fi
         done
-
         # If no matching tag is found, fail the job
         echo "No matching tag found for EEVEEVERSION=$EEVEEVERSION"
         exit 1
         echo "Using Release Tag: $EEVEETAG"
-
+        
     - name: Create Build Components folder
       run: mkdir -p "Build Components"
 
