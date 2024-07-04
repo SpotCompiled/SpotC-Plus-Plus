@@ -427,6 +427,9 @@ jobs:
         rm -f SpotifyAnylises.zip
         rm -f Info.plist
 
+    - name: Check if Vanilla Spotify was updated
+      run: echo "VANSPOTISUPDATED=$(curl -s https://api.github.com/repos/SpotCompiled/SpotC-Plus-Plus/releases/latest | jq -r '.body' | grep -q "Spotify to version ${{ env.VANILLASPOTIFYVERSION }}" && echo false || echo true)" >> $GITHUB_ENV
+
     - name: Set Change Version
       id: set-change-version
       run: |
@@ -504,9 +507,24 @@ jobs:
       run: |
         echo "## ChangeLog" > changelog.txt
         echo "- Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.EEVEEVERSIONNAME }} </br>" >> changelog.txt
-        echo "$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed -n 's/^\* //p' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
-        echo "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }} </br>" >> changelog.txt
         
+        
+    - name: Contruct ChangeLog Pt.2 (Eevee ChangeLog [Release])
+      if: ${{ github.event.inputs.USEACTIONSEEVEE == 'false' }}
+      run: |
+        echo "$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed -n 's/^\* //p' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
+        
+    - name: Contruct ChangeLog Pt.2 (Eevee ChangeLog [Actions])
+      if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' }}
+      run: |
+        echo "$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/commits?since=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest | jq -r .published_at)" | jq -r '.[].commit.message' | grep -Ev "update: repo|Merge branch .+ of .+ into .+" | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
+
+    - name: Contruct ChangeLog Pt.3 (Spotify was updated? add to changelog)
+      if: ${{ env.VANSPOTISUPDATED == 'true' }}
+      run: echo "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }} </br>" >> changelog.txt        
+        
+    - name: Contruct ChangeLog Pt.4 (Rest of changelog)
+      run: |
         # Hyperlink mentions of issues:
         tail -n +2 changelog.txt | sed -E 's/#([0-9]+)/[#\1](https:\/\/github.com\/whoeevee\/EeveeSpotify\/issues\/\1)/g' > temp_changelog.txt
         head -n 1 changelog.txt > final_changelog.txt
@@ -517,7 +535,7 @@ jobs:
         echo "***" >> changelog.txt
         echo "Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment." >> changelog.txt
     
-    - name: Construct ChangeLog Pt.2 (Add EeveeSpotify Workflow Link)
+    - name: Construct ChangeLog Pt.5 (Add EeveeSpotify Workflow Link)
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' }}
       run: |
         assetnoZIP=$(echo "${{ env.eeveeAssetLink }}" | sed 's/\/zip$//')
@@ -525,11 +543,11 @@ jobs:
         eeveeUserAssetLink=$(echo "${{ env.eeveeAssetLink }}" | sed -E "s|https://api.github.com/repos/([^/]+)/([^/]+)/actions/artifacts/([0-9]+)/zip|https://github.com/\1/\2/actions/runs/${RUN_ID}/artifacts/\3|")
         echo "The EeveeSpotify .deb was taken from the [latest Build workflow](${eeveeUserAssetLink})." >> changelog.txt
     
-    - name: Construct ChangeLog Pt.3 (Add App Details and Workflow Link)
+    - name: Construct ChangeLog Pt.6 (Add App Details and Workflow Link)
       run: |
         echo "App .ipa modified and tweaks injected using [my fork](https://github.com/yodaluca23/pyzule) of [Pyzule](https://github.com/asdfzxcvbn/pyzule) with [the github Action Workflow.](${{ env.WORKFLOWURL }}) </br>" >> changelog.txt
     
-    - name: Construct ChangeLog Pt.4 (Add Version Details & VirusTotal Results)
+    - name: Construct ChangeLog Pt.7 (Add Version Details & VirusTotal Results)
       if: ${{ env.VIRUSTOTALKEY != '' }}
       run: |
         echo "<details>" >> changelog.txt
