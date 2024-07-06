@@ -17,6 +17,9 @@ on:
       EEVEEVERSION:
         description: 'EeveeSpotify Version'
         required: false
+      EEVEEREPO:
+        description: 'Override the repo for EeveeSpotify'
+        required: false
 
 jobs:
   build:
@@ -40,11 +43,23 @@ jobs:
     - name: Install Pyzule
       run: bash -c "$(curl https://raw.githubusercontent.com/yodaluca23/pyzule/main/install-pyzule.sh)"
 
+    - name: Set EeveeSpotify Repo if given
+      if: ${{ github.event.inputs.EEVEEREPO != '' }}
+      run: |
+        EEVEEREPO=$(echo "${{ github.event.inputs.EEVEEREPO }}" | sed -E 's|https://github.com/([^/]+)/([^/]+)|\1/\2|' | sed 's|^https://github.com/||')
+        echo "EEVEEREPO=$EEVEEREPO" >> $GITHUB_ENV
+        
+    - name: Set EeveeSpotify Repo if not given
+      if: ${{ github.event.inputs.EEVEEREPO == '' }}
+      run: |
+        EEVEEREPO=$(echo "whoeevee/EeveeSpotify")
+        echo "EEVEEREPO=$EEVEEREPO" >> $GITHUB_ENV
+
     - name: Set EEVEETAG if EEVEEVERSION not provided
       if: ${{ github.event.inputs.EEVEEVERSION == '' }}
       run: |
         echo "EEVEEVERSION not provided, fetching latest release tag..."
-        EEVEETAG=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest | jq -r .tag_name)
+        EEVEETAG=$(curl -s https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/latest | jq -r .tag_name)
         echo "Latest release tag: $EEVEETAG"
         echo "EEVEETAG=$EEVEETAG" >> $GITHUB_ENV
     - name: Set EEVEETAG if tag provided
@@ -53,7 +68,7 @@ jobs:
       run: |
         EEVEEVERSION="${{ env.EEVEEVERSION }}"
         # Fetch all tags from the repository
-        tags=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/tags | jq -r '.[].name')
+        tags=$(curl -s https://api.github.com/repos/${{ env.EEVEEREPO }}/tags | jq -r '.[].name')
         
         # Find the tag that contains the EEVEEVERSION value
         for tag in $tags; do
@@ -306,7 +321,7 @@ jobs:
     - name: Download EeveeSpotify .deb file from releases
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'false' }}
       run: |
-        eevee_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.EEVEETAG }} | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and endswith("iphoneos-arm.deb")).browser_download_url')
+        eevee_asset=$(curl -s https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.assets[] | select(.name | startswith("com.eevee.spotify") and endswith("iphoneos-arm.deb")).browser_download_url')
         echo "Downloading From: $eevee_asset"
         # Download the file using curl
         curl -LJO "$eevee_asset"
@@ -319,9 +334,9 @@ jobs:
     - name: Download EeveeSpotify .deb file from artifacts
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' }}
       run: |
-        workflow_run_id=$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/actions/workflows/build-swift.yml/runs?status=success&per_page=1" | jq -r '.workflow_runs[0].id')
+        workflow_run_id=$(curl -s "https://api.github.com/repos/${{ env.EEVEEREPO }}/actions/workflows/build-swift.yml/runs?status=success&per_page=1" | jq -r '.workflow_runs[0].id')
         echo "Workflow ID: $workflow_run_id"
-        eevee_asset=$(curl -sL https://api.github.com/repos/whoeevee/EeveeSpotify/actions/runs/$workflow_run_id/artifacts | jq -r '.artifacts[] | select(.name | test("debug|arm64") | not) | .archive_download_url')
+        eevee_asset=$(curl -sL https://api.github.com/repos/${{ env.EEVEEREPO }}/actions/runs/$workflow_run_id/artifacts | jq -r '.artifacts[] | select(.name | test("debug|arm64") | not) | .archive_download_url')
         echo "Downloading From: $eevee_asset"
         curl -LJ -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$eevee_asset" -o "eeveespotfiyactionsasset.zip"
         # Extract the downloaded zip file
@@ -346,7 +361,7 @@ jobs:
 
     - name: Get Eevee release name
       run: |
-        RELEASE_TITLE=$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.EEVEETAG }}" | jq -r '.name')
+        RELEASE_TITLE=$(curl -s "https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }}" | jq -r '.name')
         echo "EEVEEVERSIONNAME=$RELEASE_TITLE" >> $GITHUB_ENV
         
     - name: Set VirusTotal Analysis URL for EeveeSpotify
@@ -355,7 +370,7 @@ jobs:
 
     - name: Download SwiftProtobuf .deb file
       run: |
-        protobuf_asset=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.EEVEETAG }} | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
+        protobuf_asset=$(curl -s https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
         echo "Downloading From: $protobuf_asset"
         # Download the file using curl
         curl -LJO "$protobuf_asset"
@@ -506,18 +521,18 @@ jobs:
     - name: Construct ChangeLog Pt.1
       run: |
         echo "## ChangeLog" > changelog.txt
-        echo "- Updated [EeveeSpotify](https://github.com/whoeevee/EeveeSpotify) to ${{ env.EEVEEVERSIONNAME }} </br>" >> changelog.txt
+        echo "- Updated [EeveeSpotify](https://github.com/${{ env.EEVEEREPO }}) to ${{ env.EEVEEVERSIONNAME }} </br>" >> changelog.txt
         
         
     - name: Contruct ChangeLog Pt.2 (Eevee ChangeLog [Release])
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'false' }}
       run: |
-        echo "$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed -n 's/^\* //p' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
+        echo "$(curl -s https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed -n 's/^\* //p' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
         
     - name: Contruct ChangeLog Pt.2 (Eevee ChangeLog [Actions])
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' }}
       run: |
-        echo "$(curl -s "https://api.github.com/repos/whoeevee/EeveeSpotify/commits?since=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/latest | jq -r .published_at)" | jq -r '.[].commit.message' | grep -Ev "update: repo|Merge branch .+ of .+ into .+" | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
+        echo "$(curl -s "https://api.github.com/repos/${{ env.EEVEEREPO }}/commits?since=$(curl -s https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/latest | jq -r .published_at)" | jq -r '.[].commit.message' | grep -Ev "update: repo|Merge branch .+ of .+ into .+" | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
 
     - name: Contruct ChangeLog Pt.3 (Spotify was updated? add to changelog)
       if: ${{ env.VANSPOTISUPDATED == 'true' }}
@@ -594,7 +609,7 @@ jobs:
     - name: Fetch the first bullet point from the EeveeSpotify release changelog
       id: fetch-changelog
       run: |
-        BULLET_POINT=$(curl -s https://api.github.com/repos/whoeevee/EeveeSpotify/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | grep -m 1 -o '^\*.*' | sed 's/^\* //' | tr -d '"' | tr -d '\r')
+        BULLET_POINT=$(curl -s https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | grep -m 1 -o '^\*.*' | sed 's/^\* //' | tr -d '"' | tr -d '\r')
         echo "BULLET_POINT=$BULLET_POINT" >> $GITHUB_ENV
 
     - name: Set ALTSTORECHANGELOG environment variable
@@ -641,7 +656,7 @@ jobs:
                   "item": "EeveeSpotify",
                   "version": $EEVEEVERSIONNAME,
                   "authors": "Whoeevee & Asdfzxcvbn",
-                  "url": "https://github.com/whoeevee/EeveeSpotify"
+                  "url": "https://github.com/${{ env.EEVEEREPO }}"
               },
               {
                   "item": "Sposify",
