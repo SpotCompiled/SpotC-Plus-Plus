@@ -338,9 +338,9 @@ jobs:
       run: |
         workflow_run_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ env.EEVEEREPO }}/actions/workflows/build-swift.yml/runs?status=success&per_page=1" | jq -r '.workflow_runs[0].id')
         echo "Workflow ID: $workflow_run_id"
-        eevee_asset=$(curl -sL https://api.github.com/repos/${{ env.EEVEEREPO }}/actions/runs/$workflow_run_id/artifacts | jq -r '.artifacts[] | select(.name | test("debug|arm64") | not) | .archive_download_url')
+        eevee_asset=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/actions/runs/$workflow_run_id/artifacts | jq -r '.artifacts[] | select(.name | test("debug|arm64") | not) | .archive_download_url')
         echo "Downloading From: $eevee_asset"
-        curl -LJ -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$eevee_asset" -o "eeveespotfiyactionsasset.zip"
+        curl -LJ -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$eevee_asset" -o "eeveespotfiyactionsasset.zip"
         # Extract the downloaded zip file
         unzip -q "eeveespotfiyactionsasset.zip" -d extracted_files
         # Find the file you need within the extracted files
@@ -372,7 +372,7 @@ jobs:
 
     - name: Download SwiftProtobuf .deb file
       run: |
-        protobuf_asset=$(curl -s https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
+        protobuf_asset=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.assets[] | select(.name | startswith("org.swift.protobuf.swiftprotobuf") and endswith("iphoneos-arm.deb")).browser_download_url')
         echo "Downloading From: $protobuf_asset"
         # Download the file using curl
         curl -LJO "$protobuf_asset"
