@@ -573,8 +573,6 @@ jobs:
         
         echo "***" >> changelog.txt
         echo "Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment." >> changelog.txt
-        echo "[!WARNING]" >> changelog.txt
-        echo "If you are downloading from this page, and are reading this, DO NOT USE the .ipa labeled _ALTSTORESOURCE_ONLY" >> changelog.txt
     
     - name: Construct ChangeLog Pt.5 (Add EeveeSpotify Workflow Link)
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' }}
@@ -587,6 +585,7 @@ jobs:
     - name: Construct ChangeLog Pt.6 (Add App Details and Workflow Link)
       run: |
         echo "App .ipa modified and tweaks injected using [my fork](https://github.com/yodaluca23/pyzule) of [Pyzule](https://github.com/asdfzxcvbn/pyzule) with [the github Action Workflow.](${{ env.WORKFLOWURL }}) </br>" >> changelog.txt
+        echo "***If you are downloading from this page, and are reading this, DO NOT USE the .ipa labeled _ALTSTORESOURCE_ONLY***" >> changelog.txt
     
     - name: Construct ChangeLog Pt.7 (Add Version Details & VirusTotal Results)
       if: ${{ env.VIRUSTOTALKEY != '' }}
