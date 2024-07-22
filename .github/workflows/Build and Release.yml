@@ -622,8 +622,8 @@ jobs:
         draft: true
         body_path: changelog.txt
         files: |
-          "${{ env.patchedspotify }}"
-          "${{ env.altpatchedspotify }}"
+          ${{ env.patchedspotify }}
+          ${{ env.altpatchedspotify }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -636,10 +636,10 @@ jobs:
         echo "SpotC++ File Size: $FILE_SIZE"
         echo "SPOTCSIZE=$FILE_SIZE" >> $GITHUB_ENV
 
-    - name: Calculate SpotC++ Filesize
+    - name: Calculate AltStore SpotC++ Filesize
       run: |
-        FILE_SIZE=$(stat -f%z "${{ env.altstorepatchedspotify }}")
-        echo "SpotC++ File Size: $FILE_SIZE"
+        FILE_SIZE=$(stat -f%z "${{ env.altpatchedspotify }}")
+        echo "AltStore SpotC++ File Size: $FILE_SIZE"
         echo "ALTSPOTCSIZE=$FILE_SIZE" >> $GITHUB_ENV
 
     - name: Fetch the first bullet point from the EeveeSpotify release changelog
