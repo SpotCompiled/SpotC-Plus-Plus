@@ -10,17 +10,34 @@
 
 <br/>This is my repo for compiled EeveeSpotify + Sposify IPAs. EeveeSpotify is a Spotify IOS app tweak that removes ads, removes limited skips, and almost every other premium feature. The only main premium feature that does not work is offline downloads, as this is done server-side. Sposify is a Spotify IOS app tweak that adds various enhancements to the Spotify IOS application.
 
-## Adding to AltStore/SideStore<br/>
+***
+<details>
+<summary><h2>Adding to AltStore/SideStore</h2></summary>
 
 ### Option One:<br/>
-You can add my repo to AltStore *Beta* or SideStore for automatic updates and convenience, by following the steps below:<br/>
+You can add my repo to AltStore *Beta* or SideStore for automatic updates and conviniance, by following the steps below:<br/>
 [Click this link](https://tinyurl.com/SpotC-Import) on your device with SideStore/AltStore and it will open SideStore/AltStore with it prompting you to add the source.
 
 ### Option Two:<br/>
-You can add my repo to AltStore *Beta* or SideStore for automatic updates and convenience, by following the steps below:<br/>
+You can add my repo to AltStore *Beta* or SideStore for automatic updates and conviniance, by following the steps below:<br/>
 1. Tap "Sources" in the top-right corner of the Browse tab.<br/>
 2. Tap the ”+” button and add my source by entering its URL "https://tiny.one/SpotC"
 3. Now any "SpotC" Apps will show up in AltStore/SideStore under the "Browse" tab where you can install and update my apps easily from within AltStore/SideStore.<br/>
+
+</details>
+
+<details>
+<summary><h2>Adding to Scarlet/Others</h2></summary>
+
+You can add my repo to Scarlet and other sideloading apps for automatic updates and conviniance, by following the steps below:<br/>
+1. Press and hold the Install button in top right.
+2. Select "Add Repo"
+3. Enter the URL "[https://tiny.one/SpotC](https://tinyurl.com/SpotC-Scarlet)"
+4. Now any "SpotC" Apps will show up in Scarlet (or other sideloading apps) where you can install and update my apps easily from within Scarlet.<br/>
+
+</details>
+
+***
 
 ## How do I add my "Musixmatch token"?<br/>
 In version 3.0.0 the option to use Musixmatch as a lyric provider was added, you must add your user token so that the app may access the Musixmatch API. Instructions for doing so are below.
