@@ -32,7 +32,7 @@ You can add my repo to AltStore *Beta* or SideStore for automatic updates and co
 You can add my repo to Scarlet and other sideloading apps for automatic updates and conviniance, by following the steps below:<br/>
 1. Press and hold the Install button in top right.
 2. Select "Add Repo"
-3. Enter the URL "[https://tiny.one/SpotC](https://tinyurl.com/SpotC-Scarlet)"
+3. Enter the URL "[https://tiny.one/SpotC-Scarlet](https://tinyurl.com/SpotC-Scarlet)"
 4. Now any "SpotC" Apps will show up in Scarlet (or other sideloading apps) where you can install and update my apps easily from within Scarlet.<br/>
 
 </details>
