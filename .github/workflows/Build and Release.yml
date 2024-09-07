@@ -614,6 +614,22 @@ jobs:
         echo "</details>" >> changelog.txt
 
     - name: Create Draft Release
+      if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' || github.event.inputs.EEVEEREPO != '' }}
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: "v${{ env.CHANGEVERSION }}"
+        name: "SpotC++ v${{ env.CHANGEVERSION }}"
+        draft: true
+        body_path: changelog.txt
+        files: |
+          ${{ env.patchedspotify }}
+          ${{ env.altpatchedspotify }}
+          ${{ env.eevee-arm }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Draft Release
+      if: ${{ github.event.inputs.USEACTIONSEEVEE == 'false' && github.event.inputs.EEVEEREPO == '' }}
       uses: softprops/action-gh-release@v2
       with:
         tag_name: "v${{ env.CHANGEVERSION }}"
