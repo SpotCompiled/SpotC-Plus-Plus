@@ -744,7 +744,7 @@ jobs:
           mv AltStoreRepo_updated.json AltStoreRepo.json
     
     - name: Upload updated AltStore Repo.json as artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: UpdatedAltStoreRepo
         path: AltStoreRepo.json
@@ -828,7 +828,7 @@ jobs:
           mv ScarletRepo_updated.json ScarletRepo.json
     
     - name: Upload updated Scarlet Repo.json as artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: UpdatedScarletRepo
         path: ScarletRepo.json
