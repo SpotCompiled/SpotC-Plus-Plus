@@ -551,7 +551,7 @@ jobs:
     - name: Contruct ChangeLog Pt.2 (Eevee ChangeLog [Release])
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'false' }}
       run: |
-        echo "$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed -n 's/^[*-+] //p' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
+        echo "$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed -n 's/^[[:space:]]*[*-] //p; s/^[[:space:]]* //p' | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
         
     - name: Contruct ChangeLog Pt.2 (Eevee ChangeLog [Actions])
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' }}
@@ -660,7 +660,7 @@ jobs:
     - name: Fetch the first bullet point from the EeveeSpotify release changelog
       id: fetch-changelog
       run: |
-        BULLET_POINT=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | grep -m 1 -o '^.*' | sed 's/^[*-+] //' | tr -d '"' | tr -d '\r')
+        BULLET_POINT=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed -n 's/^[[:space:]]*[*-] //p; s/^[[:space:]]* //p' | grep -v '^$' | head -n 1 | sed 's/^/- (EeveeSpotify) /')
         echo "BULLET_POINT=$BULLET_POINT" >> $GITHUB_ENV
 
     - name: Set ALTSTORECHANGELOG environment variable
