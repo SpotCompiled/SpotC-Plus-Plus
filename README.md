@@ -15,7 +15,7 @@
 <summary><h2>Adding to AltStore/SideStore</h2></summary>
 
 ### Option One:<br/>
-You can add my repo to AltStore *Beta* or SideStore for automatic updates and conviniance, by following the steps below:<br/>
+You can add my repo to AltStore or SideStore for automatic updates and conviniance, by following the steps below:<br/>
 [Click this link](https://tinyurl.com/SpotC-Import) on your device with SideStore/AltStore and it will open SideStore/AltStore with it prompting you to add the source.
 
 ### Option Two:<br/>
