@@ -47,7 +47,7 @@ In version 2.1.0 the option to use Musixmatch as a lyric provider was added, you
 2. Open the Musixmatch app.<br/>
 3. Login/Create an account.<br/>
 4. Go to settings (Top right corner) > Scroll all the way down > click "Get help" > click "Copy debug info"<br/>
-5. Paste this into SpotveeC, when it asks you for your user token.<br/>
+5. Paste this into SpotC++, when it asks you for your user token.<br/>
 </details>
 
 ## How it's Made<br/>
