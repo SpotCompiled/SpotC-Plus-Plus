@@ -40,7 +40,7 @@ You can add my repo to Scarlet and other sideloading apps for automatic updates 
 ***
 
 ## How do I add my "Musixmatch token"?<br/>
-In version 3.0.0 the option to use Musixmatch as a lyric provider was added, you must add your user token so that the app may access the Musixmatch API. Instructions for doing so are below.
+In version 2.1.0 the option to use Musixmatch as a lyric provider was added, you must add your user token so that the app may access the Musixmatch API. However, in version 3.2.4 you can now request an anonymous Musixmatch token, simply by pressing the button when prompted for a token, if you want to use your own you can follow the following instructions below.
 <details>
 <summary>Intructions</summary><be>
 1. Download the Musixmatch Lyrics Finder app from the app store.<br/>
