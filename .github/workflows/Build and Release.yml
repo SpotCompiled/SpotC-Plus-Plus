@@ -676,6 +676,8 @@ jobs:
       run: |
         ENTITLE=$(cat "./Build Components/Entitlements.json")
         PRIVACYKEYS=$(cat "./Build Components/NSDescriptions.json")
+        echo ENTITLE
+        echo PRIVACYKEYS
         jq --arg CHANGEVERSION "${{ env.CHANGEVERSION }}" \
            --arg CURRENTDATE "$(date +%Y-%-m-%d)" \
            --arg SIZE "${{ env.ALTSPOTCSIZE }}" \
