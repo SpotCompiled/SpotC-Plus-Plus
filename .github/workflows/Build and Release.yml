@@ -429,7 +429,7 @@ jobs:
         echo "VTEXT=${{ steps.vt-openspotify.outputs.analysis }}" >> $GITHUB_ENV
         rm -f "Build Components/OpenSpotifySafariExtension.zip"
 
-    - name: Read Spotify Version from Vanilla .ipa
+    - name: Read Spotify information from vanilla .ipa
       run: |
         cp "${{ env.spotifypath }}" "Build Components/SpotifyAnylises.zip"
         unzip "Build Components/SpotifyAnylises.zip" -d "Build Components"
@@ -438,8 +438,16 @@ jobs:
         echo "VANILLASPOTIFYVERSION=$(/usr/libexec/PlistBuddy -c "Print :SpotifyVersionShort" Info.plist)"
         echo "VANILLASPOTIFYVERSION=$(/usr/libexec/PlistBuddy -c "Print :SpotifyVersionShort" Info.plist)" >> $GITHUB_ENV
         echo "Vanilla Spotify Version: $VANILLASPOTIFYVERSION"
+        
+        PRIVACY_KEYS=$(echo "{"; find ./ -name "Info.plist" | while read file; do plutil -p "$file" 2>/dev/null | grep -E "NS.*Description" | sed -E 's/^\s*"([^"]+)".*"(.*)"$/"\1": "\2",/'; done | sed 's/ =>/:/g' | sed 's/\(.*\),/\1/' | tr '\n' ',' | sed 's/,$//' | sed 's/,/,\n/g'; echo "\n}")
+        echo "Privacy Keys: $PRIVACY_KEYS"
+        echo "PRIVACY_KEYS=$PRIVACY_KEYS" >> $GITHUB_ENV
 
-        #Clean Up
+        ENTITLE_KEYS=$(codesign -d --entitlements :- Payload/Spotify.app | \xmllint --format - | \xmllint --xpath "//*[name()='key' and (starts-with(., 'com.apple') or . = 'aps-environment' or . = 'keychain-access-groups')]" - | \sed -n 's/.*<key>\(.*\)<\/key>.*/\1/p' | \jq -R -s 'split("\n") | map(select(length > 0))')
+        echo "Entitlement Keys: $ENTITLE_KEYS"
+        echo "ENTITLE_KEYSNTITLE_KEYS=$ENTITLE_KEYS" >> $GITHUB_ENV
+    
+        # Clean Up
         rm -rf Payload
         rm -f SpotifyAnylises.zip
         rm -f Info.plist
@@ -680,12 +688,16 @@ jobs:
            --arg EXTCOMMIT "${{ env.EXTCOMMIT }}" \
            --arg SPOSIFYFIXVERSION "${{ env.SPOSIFYFIXVERSION }}" \
            --arg ORIONVERSION "${{ env.ORIONVERSION }}" \
+           --arg PRIVKEYS "${{ env.PRIVACY_KEYS }}" \
+           --arg ENTITLE "${{ env.ENTITLE_KEYS }}" \
            --arg SWIFTPROTOBUFVERSION "${{ env.SWIFTPROTOBUFVERSION }}" \
            '
            (.apps[] | select(.name == "SpotC++") | .version) = $CHANGEVERSION |
            (.apps[] | select(.name == "SpotC++") | .versionDate) = $CURRENTDATE |
            (.apps[] | select(.name == "SpotC++") | .size) = ($SIZE | tonumber) |
            (.apps[] | select(.name == "SpotC++") | .changelog) = $ALTSTORECHANGELOG |
+           (.apps[] | select(.name == "SpotC++") | .appPermissions.privacy) = $PRIVKEYS |
+           (.apps[] | select(.name == "SpotC++") | .appPermissions.entitlements) = $ENTITLE |
            (.apps[] | select(.name == "SpotC++") | .versionDescription) = $ALTSTORECHANGELOG |
            (.apps[] | select(.name == "SpotC++") | .downloadURL) = "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION)_ALTSTORESOURCE_ONLY.ipa" |
            (.apps[] | select(.name == "SpotC++") | .versions) |= [{
