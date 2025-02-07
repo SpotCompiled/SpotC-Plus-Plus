@@ -676,8 +676,6 @@ jobs:
       run: |
         ENTITLE=$(cat "./Build Components/Entitlements.json")
         PRIVACYKEYS=$(cat "./Build Components/NSDescriptions.json")
-        echo "$ENTITLE"
-        echo "$PRIVACYKEYS"
         jq --arg CHANGEVERSION "${{ env.CHANGEVERSION }}" \
            --arg CURRENTDATE "$(date +%Y-%-m-%d)" \
            --arg SIZE "${{ env.ALTSPOTCSIZE }}" \
@@ -688,8 +686,8 @@ jobs:
            --arg EXTCOMMIT "${{ env.EXTCOMMIT }}" \
            --arg SPOSIFYFIXVERSION "${{ env.SPOSIFYFIXVERSION }}" \
            --arg ORIONVERSION "${{ env.ORIONVERSION }}" \
-           --arg PRIVKEYS "$PRIVACYKEYS" \
-           --arg ENTITLEMENTS "$ENTITLE" \
+           --argjson PRIVKEYS "$PRIVACYKEYS" \
+           --argjson ENTITLEMENTS "$ENTITLE" \
            --arg SWIFTPROTOBUFVERSION "${{ env.SWIFTPROTOBUFVERSION }}" \
            '
            (.apps[] | select(.name == "SpotC++") | .version) = $CHANGEVERSION |
