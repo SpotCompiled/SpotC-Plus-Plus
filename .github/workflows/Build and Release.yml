@@ -441,8 +441,8 @@ jobs:
         
         (echo "{"; find ./ -name "Info.plist" | while read file; do plutil -p "$file" 2>/dev/null | grep -E "NS.*Description" | sed -E 's/^\s*"([^"]+)".*"(.*)"$/"\1": "\2",/'; done | sed 's/ =>/:/g' | sed 's/\(.*\),/\1/' | tr '\n' ',' | sed 's/,$//' | sed 's/,/,\n/g'; echo "}") > NSDescriptions.json
 
-        (codesign -d --entitlements :- Payload/Spotify.app | \xmllint --format - | \xmllint --xpath "//*[name()='key' and (starts-with(., 'com.apple') or . = 'aps-environment' or . = 'keychain-access-groups')]" - | \sed -n 's/.*<key>\(.*\)<\/key>.*/\1/p' | \jq -R -s 'split("\n") | map(select(length > 0))') > Entitlements.json
-    
+        (codesign -d --entitlements :- Payload/Spotify.app | xmllint --format - | sed -n 's/.*<key>\(.*\)<\/key>.*/\1/p'; for EXT in Payload/Spotify.app/PlugIns/*.appex ./OpenSpotifySafariExtension.appex; do [ -d "$EXT" ] && codesign -d --entitlements :- "$EXT" | xmllint --format - | sed -n 's/.*<key>\(.*\)<\/key>.*/\1/p'; done) | sort | uniq | jq -R -s 'split("\n") | map(select(length > 0))' > Entitlements.json
+        
         # Clean Up
         rm -rf Payload
         rm -f SpotifyAnylises.zip
