@@ -576,7 +576,7 @@ jobs:
         rm temp_changelog.txt
         
         echo "***" >> changelog.txt
-        echo "Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone XR running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment." >> changelog.txt
+        echo "Vanilla IPA decrypted using [a fork of BagBak](https://github.com/TbhLovers/bagbak), on my personal MacBook Air and Jailbroken iPhone X running [Dopamine](https://github.com/opa334/Dopamine), feel free to contact me with questions about this environment." >> changelog.txt
     
     - name: Construct ChangeLog Pt.5 (Add EeveeSpotify Workflow Link)
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' }}
