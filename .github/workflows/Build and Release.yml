@@ -753,7 +753,12 @@ jobs:
 
     - name: Set ALTSTORECHANGELOG environment variable
       run: |
-        ALTSTORECHANGELOG="Updated EeveeSpotify to ${{ env.EEVEEVERSIONNAME }}, fixed several bugs. ${{ env.BULLET_POINT }}\n\n More Info:\n https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/tag/v${{ env.CHANGEVERSION }}"
+        if [ "${{ env.EEVEESPOTIFY_UPDATED }}" = "true" ]; then
+          ALTSTORECHANGELOG="Updated EeveeSpotify to ${{ env.EEVEEVERSIONNAME }}. ${{ env.BULLET_POINT }}"
+        else
+          ALTSTORECHANGELOG="Updated Spotify to ${{ env.VANILLASPOTIFYVERSION }}."
+        fi
+        ALTSTORECHANGELOG="${ALTSTORECHANGELOG}\n\n More Info:\n https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/tag/v${{ env.CHANGEVERSION }}"
         echo "ALTSTORECHANGELOG=$ALTSTORECHANGELOG" >> $GITHUB_ENV
       
     - name: Update AltStore Repo.json
