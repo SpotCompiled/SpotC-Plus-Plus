@@ -627,7 +627,7 @@ jobs:
         echo "$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ env.EEVEEREPO }}/commits?since=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/latest | jq -r .published_at)" | jq -r '.[].commit.message' | grep -Ev "update: repo|Merge branch .+ of .+ into .+" | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
 
     - name: Contruct ChangeLog Pt.3 (Add updated component lines)
-      run: echo |
+      run: |
         if [ "${{ env.SPOTIFY_UPDATED }}" = "true" ]; then
           echo "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }} </br>" >> changelog.txt
         fi
