@@ -448,8 +448,74 @@ jobs:
         rm -f SpotifyAnylises.zip
         rm -f Info.plist
 
-    - name: Check if Vanilla Spotify was updated
-      run: echo "VANSPOTISUPDATED=$(curl -s https://api.github.com/repos/SpotCompiled/SpotC-Plus-Plus/releases/latest | jq -r '.body' | grep -q "Spotify to version ${{ env.VANILLASPOTIFYVERSION }}" && echo false || echo true)" >> $GITHUB_ENV
+    - name: Check if components were updated
+      run: |
+        latest_info=$(curl -s https://raw.githubusercontent.com/SpotCompiled/SpotC-Repo/refs/heads/main/AltStore%20Repo.json | jq '.apps[] | select(.name == "SpotC++") | .information')
+
+        # Fetch previous versions.
+        spotify_version=$(echo "$latest_info" | jq -r '.[] | select(.item == "Spotify") | .version')
+        eeveespotify_version=$(echo "$latest_info" | jq -r '.[] | select(.item == "EeveeSpotify") | .version')
+        sposify_version=$(echo "$latest_info" | jq -r '.[] | select(.item == "Sposify") | .version')
+        openspotify_version=$(echo "$latest_info" | jq -r '.[] | select(.item == "OpenSpotifySafariExtension") | .version')
+        sposifyfix_version=$(echo "$latest_info" | jq -r '.[] | select(.item == "Sposify Fix") | .version')
+        orionruntime_version=$(echo "$latest_info" | jq -r '.[] | select(.item == "Orion Runtime") | .version')
+        swiftprotobuf_version=$(echo "$latest_info" | jq -r '.[] | select(.item == "SwiftProtobuf Framework") | .version')
+    
+        # Spotify
+        if [ "$spotify_version" != "v${{ env.VANILLASPOTIFYVERSION }}" ]; then
+          echo "Spotify version updated from $spotify_version to v${{ env.VANILLASPOTIFYVERSION }}"
+          echo "SPOTIFY_UPDATED=true" >> $GITHUB_ENV
+        else
+          echo "SPOTIFY_UPDATED=false" >> $GITHUB_ENV
+        fi
+    
+        # EeveeSpotify
+        if [ "$eeveespotify_version" != "${{ env.EEVEEVERSIONNAME }}" ]; then
+          echo "EeveeSpotify version updated from $eeveespotify_version to ${{ env.EEVEEVERSIONNAME }}"
+          echo "EEVEESPOTIFY_UPDATED=true" >> $GITHUB_ENV
+        else
+          echo "EEVEESPOTIFY_UPDATED=false" >> $GITHUB_ENV
+        fi
+    
+        # Sposify
+        if [ "$sposify_version" != "v${{ env.SPOSIFYVERSION }}" ]; then
+          echo "Sposify version updated from $sposify_version to v${{ env.SPOSIFYVERSION }}"
+          echo "SPOSIFY_UPDATED=true" >> $GITHUB_ENV
+        else
+          echo "SPOSIFY_UPDATED=false" >> $GITHUB_ENV
+        fi
+    
+        # OpenSpotifySafariExtension
+        if [ "$openspotify_version" != "Commit ${{ env.EXTCOMMIT }}" ]; then
+          echo "OpenSpotifySafariExtension version updated from $openspotify_version to Commit ${{ env.EXTCOMMIT }}"
+          echo "OPENSPOTIFY_UPDATED=true" >> $GITHUB_ENV
+        else
+          echo "OPENSPOTIFY_UPDATED=false" >> $GITHUB_ENV
+        fi
+    
+        # Sposify Fix
+        if [ "$sposifyfix_version" != "v${{ env.SPOSIFYFIXVERSION }}" ]; then
+          echo "Sposify Fix version updated from $sposifyfix_version to v${{ env.SPOSIFYFIXVERSION }}"
+          echo "SPOSIFYFIX_UPDATED=true" >> $GITHUB_ENV
+        else
+          echo "SPOSIFYFIX_UPDATED=false" >> $GITHUB_ENV
+        fi
+    
+        # Orion Runtime
+        if [ "$orionruntime_version" != "v${{ env.ORIONVERSION }}" ]; then
+          echo "Orion Runtime version updated from $orionruntime_version to v${{ env.ORIONVERSION }}"
+          echo "ORIONRUNTIME_UPDATED=true" >> $GITHUB_ENV
+        else
+          echo "ORIONRUNTIME_UPDATED=false" >> $GITHUB_ENV
+        fi
+    
+        # SwiftProtobuf Framework
+        if [ "$swiftprotobuf_version" != "v${{ env.SWIFTPROTOBUFVERSION }}" ]; then
+          echo "SwiftProtobuf Framework version updated from $swiftprotobuf_version to v${{ env.SWIFTPROTOBUFVERSION }}"
+          echo "SWIFTPROTOBUF_UPDATED=true" >> $GITHUB_ENV
+        else
+          echo "SWIFTPROTOBUF_UPDATED=false" >> $GITHUB_ENV
+        fi
 
     - name: Set Change Version
       id: set-change-version
@@ -549,11 +615,9 @@ jobs:
     - name: Construct ChangeLog Pt.1
       run: |
         echo "## ChangeLog" > changelog.txt
-        echo "- Updated [EeveeSpotify](https://github.com/${{ env.EEVEEREPO }}) to ${{ env.EEVEEVERSIONNAME }} </br>" >> changelog.txt
-        
         
     - name: Contruct ChangeLog Pt.2 (Eevee ChangeLog [Release])
-      if: ${{ github.event.inputs.USEACTIONSEEVEE == 'false' }}
+      if: ${{ github.event.inputs.USEACTIONSEEVEE == 'false' && env.EEVEESPOTIFY_UPDATED == 'true' }}
       run: |
         echo "$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed 's/^[[:space:]]*[*-+] //; s/^[[:space:]]* //; s/^/- (EeveeSpotify) /')" >> changelog.txt
         
@@ -562,9 +626,29 @@ jobs:
       run: |
         echo "$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ env.EEVEEREPO }}/commits?since=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/latest | jq -r .published_at)" | jq -r '.[].commit.message' | grep -Ev "update: repo|Merge branch .+ of .+ into .+" | sed 's/^/- (EeveeSpotify) /')" >> changelog.txt
 
-    - name: Contruct ChangeLog Pt.3 (Spotify was updated? add to changelog)
-      if: ${{ env.VANSPOTISUPDATED == 'true' }}
-      run: echo "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }} </br>" >> changelog.txt        
+    - name: Contruct ChangeLog Pt.3 (Add updated component lines)
+      run: echo |
+        if [ "${{ env.SPOTIFY_UPDATED }}" = "true" ]; then
+          "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }} </br>" >> changelog.txt
+        fi
+        if [ "${{ env.EEVEESPOTIFY_UPDATED }}" = "true" ]; then
+          echo "- Updated [EeveeSpotify](https://github.com/${{ env.EEVEEREPO }}) to version ${{ env.EEVEEVERSIONNAME }} </br>" >> changelog.txt
+        fi
+        if [ "${{ env.SPOSIFY_UPDATED }}" = "true" ]; then
+          "- Updated Sposify to version ${{ env.SPOSIFYVERSION }} </br>" >> changelog.txt
+        fi
+        if [ "${{ env.OPENSPOTIFY_UPDATED }}" = "true" ]; then
+          "- Updated Open in Spotify extension to commit ${{ env.EXTCOMMIT }} </br>" >> changelog.txt
+        fi
+        if [ "${{ env.SPOSIFYFIX_UPDATED }}" = "true" ]; then
+          "- Updated Sposify Fix to version ${{ env.SPOSIFYFIXVERSION }} </br>" >> changelog.txt
+        fi
+        if [ "${{ env.ORIONRUNTIME_UPDATED }}" = "true" ]; then
+          "- Updated Orion Runtime to version v${{ env.ORIONVERSION }} </br>" >> changelog.txt
+        fi
+        if [ "${{ env.SWIFTPROTOBUF_UPDATED }}" = "true" ]; then
+          "- Updated SwiftProtobuf Framework to version ${{ env.SWIFTPROTOBUFVERSION }} </br>" >> changelog.txt
+        fi
         
     - name: Contruct ChangeLog Pt.4 (Rest of changelog)
       run: |
