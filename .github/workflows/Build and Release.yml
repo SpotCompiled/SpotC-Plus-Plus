@@ -629,25 +629,25 @@ jobs:
     - name: Contruct ChangeLog Pt.3 (Add updated component lines)
       run: echo |
         if [ "${{ env.SPOTIFY_UPDATED }}" = "true" ]; then
-          "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }} </br>" >> changelog.txt
+          echo "- Updated Spotify to version ${{ env.VANILLASPOTIFYVERSION }} </br>" >> changelog.txt
         fi
         if [ "${{ env.EEVEESPOTIFY_UPDATED }}" = "true" ]; then
           echo "- Updated [EeveeSpotify](https://github.com/${{ env.EEVEEREPO }}) to version ${{ env.EEVEEVERSIONNAME }} </br>" >> changelog.txt
         fi
         if [ "${{ env.SPOSIFY_UPDATED }}" = "true" ]; then
-          "- Updated Sposify to version ${{ env.SPOSIFYVERSION }} </br>" >> changelog.txt
+          echo "- Updated Sposify to version ${{ env.SPOSIFYVERSION }} </br>" >> changelog.txt
         fi
         if [ "${{ env.OPENSPOTIFY_UPDATED }}" = "true" ]; then
-          "- Updated Open in Spotify extension to commit ${{ env.EXTCOMMIT }} </br>" >> changelog.txt
+          echo "- Updated Open in Spotify extension to commit ${{ env.EXTCOMMIT }} </br>" >> changelog.txt
         fi
         if [ "${{ env.SPOSIFYFIX_UPDATED }}" = "true" ]; then
-          "- Updated Sposify Fix to version ${{ env.SPOSIFYFIXVERSION }} </br>" >> changelog.txt
+          echo "- Updated Sposify Fix to version ${{ env.SPOSIFYFIXVERSION }} </br>" >> changelog.txt
         fi
         if [ "${{ env.ORIONRUNTIME_UPDATED }}" = "true" ]; then
-          "- Updated Orion Runtime to version v${{ env.ORIONVERSION }} </br>" >> changelog.txt
+          echo "- Updated Orion Runtime to version v${{ env.ORIONVERSION }} </br>" >> changelog.txt
         fi
         if [ "${{ env.SWIFTPROTOBUF_UPDATED }}" = "true" ]; then
-          "- Updated SwiftProtobuf Framework to version ${{ env.SWIFTPROTOBUFVERSION }} </br>" >> changelog.txt
+          echo "- Updated SwiftProtobuf Framework to version ${{ env.SWIFTPROTOBUFVERSION }} </br>" >> changelog.txt
         fi
         
     - name: Contruct ChangeLog Pt.4 (Rest of changelog)
