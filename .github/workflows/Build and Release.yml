@@ -59,7 +59,7 @@ jobs:
         python-version: '3.13'
 
     - name: Install Cyan
-      run: pipx install --force https://github.com/yodaluca23/pyzule-rw/archive/main.zip
+      run: pipx install --force https://github.com/SpotCompiled/pyzule-rw/archive/main.zip
 
     - name: Set EEVEETAG if EEVEEVERSION not provided
       if: ${{ github.event.inputs.EEVEEVERSION == '' }}
@@ -551,7 +551,7 @@ jobs:
       
     - name: Run Cyan
       run: |
-        Cyan -i "${{ env.spotifypath }}" -o "${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" -v ${{ env.CHANGEVERSION }} -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.OSSEXT }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u -w -j
+        Cyan -i "${{ env.spotifypath }}" -o "${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" -v ${{ env.CHANGEVERSION }} -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.OSSEXT }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u -w
         echo "patchedspotify=${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa"
         echo "patchedspotify=${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" >> $GITHUB_ENV
         echo "Patched Spotify .ipa Located: $patchedspotify"
@@ -570,7 +570,7 @@ jobs:
 
     - name: Run Cyan AltStore
       run: |
-        Cyan -i "${{ env.spotifypath }}" -o "${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}_ALTSTORESOURCE_ONLY.ipa" -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.OSSEXT }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u -w -j
+        Cyan -i "${{ env.spotifypath }}" -o "${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}_ALTSTORESOURCE_ONLY.ipa" -v ${{ env.CHANGEVERSION }} -b com.yodaluca23.SpotCPlusPlus -f "${{ env.sposifyfix }}" "${{ env.sposify }}" "${{ env.OSSEXT }}" "${{ env.orion }}" "${{ env.swiftprotobuf }}" "${{ env.eevee-arm }}" -u -w
         echo "altpatchedspotify=${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}_ALTSTORESOURCE_ONLY.ipa"
         echo "altpatchedspotify=${{ env.componentspath }}/SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}_ALTSTORESOURCE_ONLY.ipa" >> $GITHUB_ENV
         echo "AltStore Patched Spotify .ipa Located: $altpatchedspotify"
