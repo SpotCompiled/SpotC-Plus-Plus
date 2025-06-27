@@ -798,7 +798,7 @@ jobs:
               "localizedDescription": $ALTSTORECHANGELOG,
               "downloadURL": "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION)_ALTSTORESOURCE_ONLY.ipa",
               "size": ($SIZE | tonumber),
-              "minOSVersion": "15.0"
+              "minOSVersion": "16.1"
            }] + . |
            (.apps[] | select(.name == "SpotC++") | .information) = [
               {
@@ -882,7 +882,7 @@ jobs:
               "localizedDescription": $SCARLETCHANGELOG,
               "downloadURL": "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION).ipa",
               "size": ($SIZE | tonumber),
-              "minOSVersion": "15.0"
+              "minOSVersion": "16.1"
            }] + . |
            (.apps[] | select(.name == "SpotC++") | .information) = [
               {
