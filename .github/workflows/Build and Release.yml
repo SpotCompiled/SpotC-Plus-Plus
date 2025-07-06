@@ -624,7 +624,7 @@ jobs:
     - name: Contruct ChangeLog Pt.2 (Eevee ChangeLog [Release])
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'false' && env.EEVEESPOTIFY_UPDATED == 'true' }}
       run: |
-        echo "$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed 's/^[[:space:]]*[*-+] //; s/^[[:space:]]* //; s/^/- (EeveeSpotify) /')" >> changelog.txt
+        echo "$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed -n '/^[[:space:]]*[*-+][[:space:]]/ { s/^[[:space:]]*[*-+] //; s/^/- (EeveeSpotify) /; p; }')" >> changelog.txt
         
     - name: Contruct ChangeLog Pt.2 (Eevee ChangeLog [Actions])
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' }}
