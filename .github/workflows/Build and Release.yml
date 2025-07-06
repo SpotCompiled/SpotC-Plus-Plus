@@ -443,7 +443,11 @@ jobs:
         echo "VANILLASPOTIFYVERSION=$(/usr/libexec/PlistBuddy -c "Print :SpotifyVersionShort" Info.plist)"
         echo "VANILLASPOTIFYVERSION=$(/usr/libexec/PlistBuddy -c "Print :SpotifyVersionShort" Info.plist)" >> $GITHUB_ENV
         echo "Vanilla Spotify Version: $VANILLASPOTIFYVERSION"
-        
+
+        MIN_IOS_VERSION=$(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' Info.plist)
+        echo "MIN_IOS_VERSION=$MIN_IOS_VERSION" >> $GITHUB_ENV
+        echo "Minimum iOS Version: $MIN_IOS_VERSION"
+
         (echo "{"; find ./ -name "Info.plist" | while read file; do plutil -p "$file" 2>/dev/null | grep -E "NS.*Description" | sed -E 's/^\s*"([^"]+)".*"(.*)"$/"\1": "\2",/'; done | sed 's/ =>/:/g' | sed 's/\(.*\),/\1/' | tr '\n' ',' | sed 's/,$//' | sed 's/,/,\n/g'; echo "}") > NSDescriptions.json
 
         (codesign -d --entitlements :- Payload/Spotify.app | xmllint --format - | sed -n 's/.*<key>\(.*\)<\/key>.*/\1/p'; for EXT in Payload/Spotify.app/PlugIns/*.appex ./OpenSpotifySafariExtension.appex; do [ -d "$EXT" ] && codesign -d --entitlements :- "$EXT" | xmllint --format - | sed -n 's/.*<key>\(.*\)<\/key>.*/\1/p'; done) | sort | uniq | jq -R -s 'split("\n") | map(select(length > 0))' > Entitlements.json
@@ -780,6 +784,7 @@ jobs:
            --arg EXTCOMMIT "${{ env.EXTCOMMIT }}" \
            --arg SPOSIFYFIXVERSION "${{ env.SPOSIFYFIXVERSION }}" \
            --arg ORIONVERSION "${{ env.ORIONVERSION }}" \
+           --arg MINVERSION "${{ env.MIN_IOS_VERSION }}" \
            --argjson PRIVKEYS "$PRIVACYKEYS" \
            --argjson ENTITLEMENTS "$ENTITLE" \
            --arg SWIFTPROTOBUFVERSION "${{ env.SWIFTPROTOBUFVERSION }}" \
@@ -791,6 +796,7 @@ jobs:
            (.apps[] | select(.name == "SpotC++") | .appPermissions.privacy) = $PRIVKEYS |
            (.apps[] | select(.name == "SpotC++") | .appPermissions.entitlements) = $ENTITLEMENTS |
            (.apps[] | select(.name == "SpotC++") | .versionDescription) = $ALTSTORECHANGELOG |
+           (.apps[] | select(.name == "SpotC++") | .minOSVersion) = $MINVERSION |
            (.apps[] | select(.name == "SpotC++") | .downloadURL) = "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION)_ALTSTORESOURCE_ONLY.ipa" |
            (.apps[] | select(.name == "SpotC++") | .versions) |= [{
               "version": $CHANGEVERSION,
@@ -798,7 +804,7 @@ jobs:
               "localizedDescription": $ALTSTORECHANGELOG,
               "downloadURL": "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION)_ALTSTORESOURCE_ONLY.ipa",
               "size": ($SIZE | tonumber),
-              "minOSVersion": "16.1"
+              "minOSVersion": $MINVERSION
            }] + . |
            (.apps[] | select(.name == "SpotC++") | .information) = [
               {
@@ -868,6 +874,7 @@ jobs:
            --arg EXTCOMMIT "${{ env.EXTCOMMIT }}" \
            --arg SPOSIFYFIXVERSION "${{ env.SPOSIFYFIXVERSION }}" \
            --arg ORIONVERSION "${{ env.ORIONVERSION }}" \
+           --arg MINVERSION "${{ env.MIN_IOS_VERSION }}" \
            --arg SWIFTPROTOBUFVERSION "${{ env.SWIFTPROTOBUFVERSION }}" \
            '
            (.apps[] | select(.name == "SpotC++") | .version) = $CHANGEVERSION |
@@ -875,6 +882,7 @@ jobs:
            (.apps[] | select(.name == "SpotC++") | .size) = ($SIZE | tonumber) |
            (.apps[] | select(.name == "SpotC++") | .changelog) = $SCARLETCHANGELOG |
            (.apps[] | select(.name == "SpotC++") | .versionDescription) = $SCARLETCHANGELOG |
+           (.apps[] | select(.name == "SpotC++") | .minOSVersion) = $MINVERSION |
            (.apps[] | select(.name == "SpotC++") | .downloadURL) = "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION).ipa" |
            (.apps[] | select(.name == "SpotC++") | .versions) |= [{
               "version": $CHANGEVERSION,
@@ -882,7 +890,7 @@ jobs:
               "localizedDescription": $SCARLETCHANGELOG,
               "downloadURL": "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION).ipa",
               "size": ($SIZE | tonumber),
-              "minOSVersion": "16.1"
+              "minOSVersion": $MINVERSION
            }] + . |
            (.apps[] | select(.name == "SpotC++") | .information) = [
               {
