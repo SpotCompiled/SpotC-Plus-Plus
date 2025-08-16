@@ -591,6 +591,18 @@ jobs:
       if: ${{ env.VIRUSTOTALKEY }}
       run: echo "VTALTSPOTC=${{ steps.vt-altspotc.outputs.analysis }}" >> $GITHUB_ENV
 
+    - name: Upload to Catbox (With Hash)
+      if: ${{ env.CATBOXHASH }}
+      run: |
+        echo "RELEASEURL=$(curl -F "reqtype=fileupload" -F "userhash=${{ env.CATBOXHASH }}" -F "fileToUpload=@${{ env.patchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
+        echo "RELEASEURLALTSTORE=$(curl -F "reqtype=fileupload" -F "userhash=${{ env.CATBOXHASH }}" -F "fileToUpload=@${{ env.altpatchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
+
+    - name: Upload to Catbox (Without Hash)
+      if: ${{ !env.CATBOXHASH }}
+      run: |
+        echo "RELEASEURL=$(curl -F "reqtype=fileupload" -F "fileToUpload=@${{ env.patchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
+        echo "RELEASEURLALTSTORE=$(curl -F "reqtype=fileupload" -F "fileToUpload=@${{ env.altpatchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
+   
     - name: Extract and Prepare VirusTotal Links
       run: |
         VTSPOTC=$(echo "$VTSPOTC" | sed 's/.*\(https:\/\/.*\)/\1/')
@@ -682,7 +694,6 @@ jobs:
     - name: Construct ChangeLog Pt.6 (Add App Details and Workflow Link)
       run: |
         echo "App .ipa modified and tweaks injected using [my fork](https://github.com/yodaluca23/pyzule-rw) of [Cyan](https://github.com/asdfzxcvbn/pyzule-rw) with [the github Action Workflow.](${{ env.WORKFLOWURL }}) </br>" >> changelog.txt
-        echo "***If you are downloading from this page, and are reading this, DO NOT USE the .ipa labeled _ALTSTORESOURCE_ONLY***" >> changelog.txt
     
     - name: Construct ChangeLog Pt.7 (Add Version Details & VirusTotal Results)
       if: ${{ env.VIRUSTOTALKEY != '' }}
@@ -719,8 +730,6 @@ jobs:
         draft: true
         body_path: changelog.txt
         files: |
-          ${{ env.patchedspotify }}
-          ${{ env.altpatchedspotify }}
           ${{ env.eevee-arm }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -733,9 +742,6 @@ jobs:
         name: "SpotC++ v${{ env.CHANGEVERSION }}"
         draft: true
         body_path: changelog.txt
-        files: |
-          ${{ env.patchedspotify }}
-          ${{ env.altpatchedspotify }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -777,6 +783,7 @@ jobs:
         jq --arg CHANGEVERSION "${{ env.CHANGEVERSION }}" \
            --arg CURRENTDATE "$(date +%Y-%-m-%d)" \
            --arg SIZE "${{ env.ALTSPOTCSIZE }}" \
+           --arg RELEASEURL "${{ env.RELEASEURLALTSTORE }}" \
            --arg ALTSTORECHANGELOG "${{ env.ALTSTORECHANGELOG }}" \
            --arg VANILLASPOTIFYVERSION "${{ env.VANILLASPOTIFYVERSION }}" \
            --arg EEVEEVERSIONNAME "${{ env.EEVEEVERSIONNAME }}" \
@@ -797,12 +804,12 @@ jobs:
            (.apps[] | select(.name == "SpotC++") | .appPermissions.entitlements) = $ENTITLEMENTS |
            (.apps[] | select(.name == "SpotC++") | .versionDescription) = $ALTSTORECHANGELOG |
            (.apps[] | select(.name == "SpotC++") | .minOSVersion) = $MINVERSION |
-           (.apps[] | select(.name == "SpotC++") | .downloadURL) = "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION)_ALTSTORESOURCE_ONLY.ipa" |
+           (.apps[] | select(.name == "SpotC++") | .downloadURL) = $RELEASEURL |
            (.apps[] | select(.name == "SpotC++") | .versions) |= [{
               "version": $CHANGEVERSION,
               "date": $CURRENTDATE,
               "localizedDescription": $ALTSTORECHANGELOG,
-              "downloadURL": "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION)_ALTSTORESOURCE_ONLY.ipa",
+              "downloadURL": $RELEASEURL,
               "size": ($SIZE | tonumber),
               "minOSVersion": $MINVERSION
            }] + . |
@@ -867,6 +874,7 @@ jobs:
         jq --arg CHANGEVERSION "${{ env.CHANGEVERSION }}" \
            --arg CURRENTDATE "$(date +%Y-%-m-%d)" \
            --arg SIZE "${{ env.SPOTCSIZE }}" \
+           --arg RELEASEURL "${{ env.RELEASEURL }}" \
            --arg SCARLETCHANGELOG "${{ env.ALTSTORECHANGELOG }}" \
            --arg VANILLASPOTIFYVERSION "${{ env.VANILLASPOTIFYVERSION }}" \
            --arg EEVEEVERSIONNAME "${{ env.EEVEEVERSIONNAME }}" \
@@ -883,12 +891,12 @@ jobs:
            (.apps[] | select(.name == "SpotC++") | .changelog) = $SCARLETCHANGELOG |
            (.apps[] | select(.name == "SpotC++") | .versionDescription) = $SCARLETCHANGELOG |
            (.apps[] | select(.name == "SpotC++") | .minOSVersion) = $MINVERSION |
-           (.apps[] | select(.name == "SpotC++") | .downloadURL) = "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION).ipa" |
+           (.apps[] | select(.name == "SpotC++") | .downloadURL) = $RELEASEURL |
            (.apps[] | select(.name == "SpotC++") | .versions) |= [{
               "version": $CHANGEVERSION,
               "date": $CURRENTDATE,
               "localizedDescription": $SCARLETCHANGELOG,
-              "downloadURL": "https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/download/v\($CHANGEVERSION)/SpotC++.v\($CHANGEVERSION)_v\($VANILLASPOTIFYVERSION).ipa",
+              "downloadURL": $RELEASEURL,
               "size": ($SIZE | tonumber),
               "minOSVersion": $MINVERSION
            }] + . |
