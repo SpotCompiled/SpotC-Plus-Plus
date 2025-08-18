@@ -594,8 +594,8 @@ jobs:
     - name: Upload to Catbox (With Hash)
       if: ${{ env.CATBOXHASH }}
       run: |
-        echo "RELEASEURL=$(curl -F "reqtype=fileupload" -F "userhash=${{ env.CATBOXHASH }}" -F "fileToUpload=@${{ env.patchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
-        echo "RELEASEURLALTSTORE=$(curl -F "reqtype=fileupload" -F "userhash=${{ env.CATBOXHASH }}" -F "fileToUpload=@${{ env.altpatchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
+        echo "RELEASEURL=$(curl -F "reqtype=fileupload" -F "userhash=${{ secrets.CATBOXHASH }}" -F "fileToUpload=@${{ env.patchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
+        echo "RELEASEURLALTSTORE=$(curl -F "reqtype=fileupload" -F "userhash=${{ secrets.CATBOXHASH }}" -F "fileToUpload=@${{ env.altpatchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
 
     - name: Upload to Catbox (Without Hash)
       if: ${{ !env.CATBOXHASH }}
