@@ -50,7 +50,7 @@ jobs:
     - name: Set EeveeSpotify Repo if not given
       if: ${{ github.event.inputs.EEVEEREPO == '' }}
       run: |
-        EEVEEREPO=$(echo "whoeevee/EeveeSpotify")
+        EEVEEREPO=$(echo "whoeevee/EeveeSpotifyReborn")
         echo "EEVEEREPO=$EEVEEREPO" >> $GITHUB_ENV
 
     - name: Set up Python 3.13
