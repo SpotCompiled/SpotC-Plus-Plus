@@ -104,7 +104,7 @@ jobs:
         SPOTURL: ${{ github.event.inputs.SPOTURL }}
       
     - name: Upload Spotify IPA to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-spotify
       with:
@@ -112,7 +112,7 @@ jobs:
         vt_api_key: ${{ secrets.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for Spotify IPA
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       run: echo "VTVANILLASPOTIFY=${{ steps.vt-spotify.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Download and process Orion
@@ -174,7 +174,7 @@ jobs:
         echo "ORIONVERSION=$ORIONVERSION" >> $GITHUB_ENV
         
     - name: Upload Orion to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-orion
       with:
@@ -182,7 +182,7 @@ jobs:
         vt_api_key: ${{ secrets.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for Orion
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       run: echo "VTORION=${{ steps.vt-orion.outputs.analysis }}" >> $GITHUB_ENV
     
     - name: Download and process Sposify
@@ -244,7 +244,7 @@ jobs:
 
     
     - name: Upload Sposify to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-sposify
       with:
@@ -252,7 +252,7 @@ jobs:
         vt_api_key: ${{ secrets.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for Sposify
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       run: echo "VTSPOSIFY=${{ steps.vt-sposify.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Download and process SposifyFix
@@ -313,7 +313,7 @@ jobs:
         echo "SPOSIFYFIXVERSION=$SPOSIFYFIXVERSION" >> $GITHUB_ENV
     
     - name: Upload SposifyFix to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-sposifyfix
       with:
@@ -321,7 +321,7 @@ jobs:
         vt_api_key: ${{ secrets.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for SposifyFix
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       run: echo "VTSPOSIFYFIX=${{ steps.vt-sposifyfix.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Download EeveeSpotify .deb file from releases
@@ -358,7 +358,7 @@ jobs:
 
     
     - name: Upload EeveeSpotify to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-eevee
       with:
@@ -371,7 +371,7 @@ jobs:
         echo "EEVEEVERSIONNAME=$RELEASE_TITLE" >> $GITHUB_ENV
         
     - name: Set VirusTotal Analysis URL for EeveeSpotify
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       run: echo "VTEEVEE=${{ steps.vt-eevee.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Download SwiftProtobuf .deb file
@@ -390,7 +390,7 @@ jobs:
         EEVEETAG: ${{ env.EEVEETAG }}
     
     - name: Upload SwiftProtobuf to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-swiftprotobuf
       with:
@@ -398,7 +398,7 @@ jobs:
         vt_api_key: ${{ secrets.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for SwiftProtobuf
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       run: echo "VTSWIFTPROTOBUF=${{ steps.vt-swiftprotobuf.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Clone OpenSpotifySafariExtension
@@ -420,7 +420,7 @@ jobs:
         ditto -c -k --sequesterRsrc --keepParent ./ "../Build Components/OpenSpotifySafariExtension.zip"
     
     - name: Upload OpenSpotifySafariExtension to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-openspotify
       with:
@@ -428,7 +428,7 @@ jobs:
         vt_api_key: ${{ secrets.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for OpenSpotifySafariExtension
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       run: |
         echo "VTEXT=${{ steps.vt-openspotify.outputs.analysis }}" >> $GITHUB_ENV
         rm -f "Build Components/OpenSpotifySafariExtension.zip"
@@ -559,7 +559,7 @@ jobs:
         echo "Patched Spotify .ipa Located: ${{ env.patchedspotify }}"
 
     - name: Upload SpotifyPatched.ipa to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-spotc
       with:
@@ -567,7 +567,7 @@ jobs:
         vt_api_key: ${{ secrets.VIRUSTOTALKEY }}
 
     - name: Set VirusTotal Analysis URL for SpotC++
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       run: echo "VTSPOTC=${{ steps.vt-spotc.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Run Cyan AltStore
@@ -578,7 +578,7 @@ jobs:
         echo "AltStore Patched Spotify .ipa Located: ${{ env.altpatchedspotify }}"
 
     - name: Upload AltSpotifyPatched.ipa to VirusTotal
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       uses: crazy-max/ghaction-virustotal@v4
       id: vt-altspotc
       with:
@@ -586,11 +586,11 @@ jobs:
         vt_api_key: ${{ secrets.VIRUSTOTALKEY }}
         
     - name: Set VirusTotal Analysis URL for AltSpotC++
-      if: ${{ secrets.VIRUSTOTALKEY }}
+      if: ${{ secrets.VIRUSTOTALKEY != '' }}
       run: echo "VTALTSPOTC=${{ steps.vt-altspotc.outputs.analysis }}" >> $GITHUB_ENV
 
     - name: Upload to Catbox (With Hash)
-      if: ${{ secrets.CATBOXHASH }}
+      if: ${{ secrets.CATBOXHASH != '' }}
       run: |
         echo "RELEASEURL=$(curl -F "reqtype=fileupload" -F "userhash=${{ secrets.CATBOXHASH }}" -F "fileToUpload=@${{ env.patchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
         echo "RELEASEURLALTSTORE=$(curl -F "reqtype=fileupload" -F "userhash=${{ secrets.CATBOXHASH }}" -F "fileToUpload=@${{ env.altpatchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
