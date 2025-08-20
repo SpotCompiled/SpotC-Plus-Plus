@@ -35,6 +35,8 @@ You can add my repo to Scarlet and other sideloading apps for automatic updates 
 3. Enter the URL "[https://spotc-repo.yodaluca.dev/Scarlet%20Repo.json](https://spotc-repo.yodaluca.dev/Scarlet%20Repo.json)"
 4. Now any "SpotC" Apps will show up in Scarlet (or other sideloading apps) where you can install and update my apps easily from within Scarlet.<br/>
 
+You can also download from [the website](https://spotc.yodaluca.dev) and use with whatever app/service you wish.
+
 </details>
 
 ***
