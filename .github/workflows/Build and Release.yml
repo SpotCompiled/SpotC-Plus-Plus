@@ -727,7 +727,6 @@ jobs:
         echo "</details>" >> changelog.txt
 
     - name: Construct ChangeLog Pt.8 (Add file name dropdown)
-      if: ${{ env.VT_ENABLED == 'true' }}
       run: |
         echo "" >> changelog.txt
         echo "***" >> changelog.txt
