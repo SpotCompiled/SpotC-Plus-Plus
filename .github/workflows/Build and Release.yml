@@ -726,6 +726,18 @@ jobs:
         echo "<br><a href='${{ env.VTALTSPOTC }}'>AltStore SpotC++ VirusTotal</a></p>" >> changelog.txt
         echo "</details>" >> changelog.txt
 
+    - name: Construct ChangeLog Pt.8 (Add file name dropdown)
+      if: ${{ env.VT_ENABLED == 'true' }}
+      run: |
+        echo "" >> changelog.txt
+        echo "***" >> changelog.txt
+        echo "" >> changelog.txt
+        echo "<details>" >> changelog.txt
+        echo "<summary>Files</summary>" >> changelog.txt
+        echo "SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}_ALTSTORESOURCE_ONLY.ipa"
+        echo "SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa"
+        echo "</details>" >> changelog.txt
+
     - name: Create Draft Release
       if: ${{ github.event.inputs.USEACTIONSEEVEE == 'true' || github.event.inputs.EEVEEREPO != '' }}
       uses: softprops/action-gh-release@v2
