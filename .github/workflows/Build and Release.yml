@@ -594,18 +594,24 @@ jobs:
     - name: Upload to Catbox (With Hash)
       if: ${{ env.CATBOXHASH_ENABLED == 'true' }}
       run: |
-        echo "RELEASEURL=$(curl -F "reqtype=fileupload" -F "userhash=${{ secrets.CATBOXHASH }}" -F "fileToUpload=@${{ env.patchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
-        echo "RELEASEURLALTSTORE=$(curl -F "reqtype=fileupload" -F "userhash=${{ secrets.CATBOXHASH }}" -F "fileToUpload=@${{ env.altpatchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
-        echo "Standard Release Download URL: ${{ env.RELEASEURL }}"
-        echo "AltStore Release Download URL: ${{ env.RELEASEURLALTSTORE }}"
-        
+        RELEASEURL=$(curl -F "reqtype=fileupload" -F "userhash=${{ secrets.CATBOXHASH }}" -F "fileToUpload=@${{ env.patchedspotify }}" https://catbox.moe/user/api.php)
+        echo "Standard Release Download URL: $RELEASEURL"
+        echo "RELEASEURL=$RELEASEURL" >> $GITHUB_ENV
+    
+        RELEASEURLALTSTORE=$(curl -F "reqtype=fileupload" -F "userhash=${{ secrets.CATBOXHASH }}" -F "fileToUpload=@${{ env.altpatchedspotify }}" https://catbox.moe/user/api.php)
+        echo "AltStore Release Download URL: $RELEASEURLALTSTORE"
+        echo "RELEASEURLALTSTORE=$RELEASEURLALTSTORE" >> $GITHUB_ENV
+      
     - name: Upload to Catbox (Without Hash)
       if: ${{ env.CATBOXHASH_ENABLED == 'false' }}
       run: |
-        echo "RELEASEURL=$(curl -F "reqtype=fileupload" -F "fileToUpload=@${{ env.patchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
-        echo "RELEASEURLALTSTORE=$(curl -F "reqtype=fileupload" -F "fileToUpload=@${{ env.altpatchedspotify }}" https://catbox.moe/user/api.php)" >> $GITHUB_ENV
-        echo "Standard Release Download URL: ${{ env.RELEASEURL }}"
-        echo "AltStore Release Download URL: ${{ env.RELEASEURLALTSTORE }}"
+        RELEASEURL=$(curl -F "reqtype=fileupload" -F "fileToUpload=@${{ env.patchedspotify }}" https://catbox.moe/user/api.php)
+        echo "Standard Release Download URL: $RELEASEURL"
+        echo "RELEASEURL=$RELEASEURL" >> $GITHUB_ENV
+    
+        RELEASEURLALTSTORE=$(curl -F "reqtype=fileupload" -F "fileToUpload=@${{ env.altpatchedspotify }}" https://catbox.moe/user/api.php)
+        echo "AltStore Release Download URL: $RELEASEURLALTSTORE"
+        echo "RELEASEURLALTSTORE=$RELEASEURLALTSTORE" >> $GITHUB_ENV
    
     - name: Extract and Prepare VirusTotal Links
       if: ${{ env.VT_ENABLED == 'true' }}
