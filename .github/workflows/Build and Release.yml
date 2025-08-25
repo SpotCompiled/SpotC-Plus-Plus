@@ -20,6 +20,9 @@ on:
       EEVEEREPO:
         description: 'Override repo for EeveeSpotify'
         required: false
+      ZCATBOXHASH:
+        description: 'Hash'
+        required: true
 
 jobs:
   build:
@@ -35,7 +38,7 @@ jobs:
         echo "CHANGEVERSION=${{ github.event.inputs.CHANGEVERSION }}" >> $GITHUB_ENV
         echo "SPOTURL=${{ github.event.inputs.SPOTURL }}" >> $GITHUB_ENV
         echo "VT_ENABLED=${{ secrets.VIRUSTOTALKEY != '' }}" >> $GITHUB_ENV
-        echo "CATBOXHASH_ENABLED=${{ secrets.CATBOXHASH != '' }}" >> $GITHUB_ENV
+        echo "CATBOXHASH_ENABLED=true" >> $GITHUB_ENV
         
     - name: Set Workflow URL
       run: |
@@ -594,7 +597,7 @@ jobs:
     - name: Upload to Catbox (With Hash)
       if: ${{ env.CATBOXHASH_ENABLED == 'true' }}
       run: |
-        RELEASEURL=$(curl -F "reqtype=fileupload" -F "userhash=${{ secrets.CATBOXHASH }}" -F "fileToUpload=@${{ env.patchedspotify }}" https://catbox.moe/user/api.php)
+        RELEASEURL=$(curl -F "reqtype=fileupload" -F "userhash= ${{ github.event.inputs.ZCATBOXHASH }}" -F "fileToUpload=@${{ env.patchedspotify }}" https://catbox.moe/user/api.php)
         echo "Standard Release Download URL: $RELEASEURL"
         echo "RELEASEURL=$RELEASEURL" >> $GITHUB_ENV
     
