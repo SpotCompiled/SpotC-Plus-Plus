@@ -739,8 +739,8 @@ jobs:
         echo "" >> changelog.txt
         echo "<details>" >> changelog.txt
         echo "<summary>Files</summary>" >> changelog.txt
-        echo "SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}_ALTSTORESOURCE_ONLY.ipa"
-        echo "SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa"
+        echo "SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}_ALTSTORESOURCE_ONLY.ipa" >> changelog.txt
+        echo "SpotC++.v${{ env.CHANGEVERSION }}_v${{ env.VANILLASPOTIFYVERSION }}.ipa" >> changelog.txt
         echo "</details>" >> changelog.txt
 
     - name: Create Draft Release
@@ -785,7 +785,7 @@ jobs:
     - name: Fetch the first bullet point from the EeveeSpotify release changelog
       id: fetch-changelog
       run: |
-        BULLET_POINT=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed -n 's/^[[:space:]]*[*-+] //p; s/^[[:space:]]* //p' | grep -v '^$' | head -n 1 | awk 'tolower($0) ~ /localizat[io]?n/ {print "Improved localizations."; next} {print}')
+        BULLET_POINT=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.EEVEEREPO }}/releases/tags/${{ env.EEVEETAG }} | jq -r '.body' | sed -n 's/^[[:space:]]*[*-+] //p; s/^[[:space:]]* //p' | grep -v '^$' | head -n 1 | awk '{line=tolower($0); if (line ~ /localization|localisation/) print "Improved localizations."; else print $0}')
         echo "BULLET_POINT=$BULLET_POINT" >> $GITHUB_ENV
 
     - name: Set ALTSTORECHANGELOG environment variable
