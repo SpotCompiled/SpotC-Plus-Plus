@@ -11,8 +11,11 @@
 <br/>This is my repo for compiled EeveeSpotify + Sposify IPAs. EeveeSpotify is a Spotify IOS app tweak that removes ads, removes limited skips, and almost every other premium feature. The only main premium feature that does not work is offline downloads, as this is done server-side. Sposify is a Spotify IOS app tweak that adds various enhancements to the Spotify IOS application.
 
 ***
+
+## Installing
+
 <details>
-<summary><h2>Adding to AltStore/SideStore</h2></summary>
+<summary><h3>Adding to AltStore/SideStore</h3></summary>
 
 ### Option One:<br/>
 You can add my repo to AltStore or SideStore for automatic updates and conviniance, by following the steps below:<br/>
@@ -22,12 +25,12 @@ You can add my repo to AltStore or SideStore for automatic updates and convinian
 You can add my repo to AltStore *Beta* or SideStore for automatic updates and conviniance, by following the steps below:<br/>
 1. Tap "Sources" in the top-right corner of the Browse tab.<br/>
 2. Tap the ”+” button and add my source by entering its URL "[https://spotc-repo.yodaluca.dev/AltStore%20Repo.json](https://spotc-repo.yodaluca.dev/AltStore%20Repo.json)"
-3. Now any "SpotC" Apps will show up in AltStore/SideStore under the "Browse" tab where you can install and update my apps easily from within AltStore/SideStore.<br/>
+3. Now any "SpotC" Apps will show up in AltStore/SideStore under the "Browse" tab where you can install and update my apps easily from within AltStore/SideStore.
 
 </details>
 
 <details>
-<summary><h2>Adding to Scarlet/Others</h2></summary>
+<summary><h3>Adding to Scarlet/Others</h3></summary>
 
 You can add my repo to Scarlet and other sideloading apps for automatic updates and conviniance, by following the steps below:<br/>
 1. Press and hold the Install button in top right.
@@ -35,9 +38,9 @@ You can add my repo to Scarlet and other sideloading apps for automatic updates 
 3. Enter the URL "[https://spotc-repo.yodaluca.dev/Scarlet%20Repo.json](https://spotc-repo.yodaluca.dev/Scarlet%20Repo.json)"
 4. Now any "SpotC" Apps will show up in Scarlet (or other sideloading apps) where you can install and update my apps easily from within Scarlet.<br/>
 
-You can also download from [the website](https://spotc.yodaluca.dev) and use with whatever app/service you wish.
-
 </details>
+
+You can also download from [the website](https://spotc.yodaluca.dev) and use with whatever app/service you wish.
 
 ***
 
