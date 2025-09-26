@@ -799,7 +799,7 @@ jobs:
         ALTSTORECHANGELOG="${ALTSTORECHANGELOG}\n\n More Info:\n https://github.com/SpotCompiled/SpotC-Plus-Plus/releases/tag/v${{ env.CHANGEVERSION }}"
     
         # replace double quotes with single quotes
-        ALTSTORECHANGELOG="${ALTSTORECHANGELOG//\"/\'}"
+        ALTSTORECHANGELOG=$(echo "$ALTSTORECHANGELOG" | sed "s/\"/'/g")
     
         echo "ALTSTORECHANGELOG=$ALTSTORECHANGELOG" >> $GITHUB_ENV
     
